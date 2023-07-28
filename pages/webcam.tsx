@@ -52,6 +52,13 @@ function WebCam() {
     setPlaying(!playing)
   }
 
+  // function refreshDeviceList() {
+  //   navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
+  //     stream.getTracks().forEach(t => t.stop())
+  //     fillDeviceList()
+  //   })
+  // }
+
   return (
     <>
       <div className="w-screen h-screen p-12">

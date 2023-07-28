@@ -1,4 +1,5 @@
 import { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import Webcam from "react-webcam"
 import RefreshConnectDevices from "asset/icons/RefreshIcon"
 import Image from "next/image"
 import { useInterval } from "usehooks-ts"
@@ -15,12 +16,13 @@ function ReactWebcam() {
   const [devices, setDevices] = useState<InputDeviceInfo[]>([])
   const [qrayDeviceId, setQrayDeviceId] = useState<string>("")
   const [isQrayOn, setIsQrayOn] = useState<boolean>(false)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
+
+  const webcamRef = useRef<Webcam | null>(null)
 
   const userMediaConstraints = useMemo(() => {
     return {
       audio: false,
-      video: true,
+      video: false,
     }
   }, [])
 
@@ -30,7 +32,7 @@ function ReactWebcam() {
 
   const toggleCam = (): void => {
     if (playing) {
-      const cam = videoRef.current?.video
+      const cam = webcamRef.current?.video
 
       if (cam && cam.srcObject) {
         const stream = cam.srcObject as MediaStream
@@ -45,12 +47,12 @@ function ReactWebcam() {
   }
 
   const capturePhoto = useCallback(() => {
-    const cam = videoRef.current?.video
+    const cam = webcamRef.current?.video
     const stream = cam?.srcObject as MediaStream
 
     console.log(stream)
 
-    const imageSrc = videoRef.current?.getScreenshot()
+    const imageSrc = webcamRef.current?.getScreenshot()
     const currentTime = getCurrentDateTime()
 
     const newPicInfo = {
@@ -72,13 +74,14 @@ function ReactWebcam() {
 
   // 스트림할 디바이스 선택
   const getUserMedia = async (constraints?: MediaStreamConstraints) => {
-    await navigator.mediaDevices.getUserMedia(constraints).then(mediaStream => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream
-      }
-      console.log("mediaStream", mediaStream.active)
-      setIsQrayOn(mediaStream.active)
+    const stream = await navigator.mediaDevices.getUserMedia(constraints).catch(() => {
+      console.log("error in mediaStream")
     })
+
+    console.log("stream", stream)
+
+    // console.log("mediaStream", mediaStream.active)
+    // setIsQrayOn(mediaStream.active)
   }
 
   // 연결되어있는 디바이스 리스트
@@ -93,19 +96,28 @@ function ReactWebcam() {
       const qrayDevice = devices.filter(device => device.label === "QRAYPEN C (636c:9050)")
       const deviceId = qrayDevice[0]?.deviceId
       setQrayDeviceId(deviceId)
+      setIsQrayOn(true)
       console.log(deviceId)
     })
 
     getUserMedia(userMediaConstraints)
   }, 500)
 
-  useEffect(() => {}, [isQrayOn])
-
   return (
     <>
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96">
-          {isQrayOn ? <video ref={videoRef} className="h-full" autoPlay /> : "The qray power is off. Please turn on the power."}
+          {isQrayOn ? (
+            <Webcam
+              ref={webcamRef}
+              className="h-full"
+              videoConstraints={{ deviceId: qrayDeviceId }}
+              audio={false}
+              screenshotFormat="image/jpeg"
+            />
+          ) : (
+            "The qray power is off. Please turn on the power."
+          )}
         </div>
 
         <div className="flex w-full h-40 min-w-7xl ">

@@ -19,9 +19,9 @@ function ReactWebcam() {
   const [isQrayDeviceStreamOn, setIsQrayDeviceStreamOn] = useState<boolean>(false)
   const [count, setCount] = useState<number>(0)
 
-  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const webcamRef = useRef<Webcam | null>(null)
 
-  let videoConstraints: MediaStreamConstraints = {
+  const videoConstraints: MediaStreamConstraints = {
     video: { deviceId: { exact: qrayDeviceId } },
   }
 
@@ -29,17 +29,10 @@ function ReactWebcam() {
   const checkQrayDeviceStream: (qrayDeviceId: string | undefined) => void = async (qrayDeviceId: string | undefined) => {
     try {
       const stream: MediaStream = await navigator.mediaDevices.getUserMedia(videoConstraints)
-      console.log(stream)
 
-      if (stream.active && videoRef.current) {
-        console.log("1")
-        videoRef.current.srcObject = stream
+      if (stream.active) {
         setIsQrayDeviceStreamOn(true)
       } else {
-        stream.getTracks().forEach(t => {
-          t.stop()
-          console.log("stop")
-        })
         setIsQrayDeviceStreamOn(false)
       }
 
@@ -59,7 +52,6 @@ function ReactWebcam() {
     }
   }
 
-  // 연결되어있는 디바이스 리스트
   const getDevices = (e: MediaDevices) => {
     e.enumerateDevices().then(devices => {
       const qrayDevice = devices.filter(device => device.label === "QRAYPEN C (636c:9050)")
@@ -68,14 +60,7 @@ function ReactWebcam() {
       setDevices(devices)
       setQrayDeviceId(qrayDeviceId)
       console.log(devices)
-      console.log("qrayDeviceId", qrayDeviceId)
-    })
-  }
-
-  const handleRefreshClick: MouseEventHandler<SVGElement> = () => {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      console.log("여기", devices)
-      setDevices([...devices])
+      console.log(`qrayDeviceId: ${trimTextToLength(qrayDeviceId, 10)}, count: ${count}`)
     })
   }
 
@@ -86,17 +71,21 @@ function ReactWebcam() {
     setCount(count => count + 1)
   }, 3000)
 
-  useEffect(() => {
-    if (qrayDeviceId != undefined) {
-      checkQrayDeviceStream(qrayDeviceId)
-    }
-  }, [qrayDeviceId])
-
   return (
     <>
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96">
-          {isQrayOn ? <video ref={videoRef} className="h-full" /> : "The qray power is off. Please turn on the power."}
+          {isQrayOn ? (
+            <Webcam
+              ref={webcamRef}
+              className="h-full"
+              videoConstraints={videoConstraints.video}
+              audio={false}
+              screenshotFormat="image/jpeg"
+            />
+          ) : (
+            "The qray power is off. Please turn on the power."
+          )}
         </div>
 
         <div className="flex w-full h-40 min-w-7xl ">
@@ -116,10 +105,7 @@ function ReactWebcam() {
           <div className="w-3/5 py-2">
             <div className="flex items-center space-x-2 h-[20%]">
               <div className="text-[1.25rem]">Connected Devices</div>
-              <RefreshConnectDevices
-                className="w-5 h-5 p-[0.15rem] bg-white rounded-full cursor-pointer hover:bg-slate-600"
-                onClick={handleRefreshClick}
-              />
+              <RefreshConnectDevices className="w-5 h-5 p-[0.15rem] bg-white rounded-full cursor-pointer hover:bg-slate-600" />
             </div>
 
             <div className="overflow-y-scroll h-[80%]">
