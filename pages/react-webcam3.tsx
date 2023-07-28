@@ -59,6 +59,7 @@ function ReactWebcam() {
 
       setDevices(devices)
       setQrayDeviceId(qrayDeviceId)
+
       console.log(devices)
       console.log(`qrayDeviceId: ${trimTextToLength(qrayDeviceId, 10)}, count: ${count}`)
     })
