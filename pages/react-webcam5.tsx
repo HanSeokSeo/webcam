@@ -64,63 +64,23 @@ function ReactWebcam() {
   sleep 모드로 변경되는 경우에는 실행될 필요가 없음
   */
   const getQrayDevices = async () => {
-    if (isPlaying == false) {
-      console.log("11")
-      try {
-        await navigator.mediaDevices.enumerateDevices().then(devices => {
-          const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
-          const newQrayDeviceId = newQrayDevice[0]?.deviceId
+    console.log("22")
+    try {
+      await navigator.mediaDevices.enumerateDevices().then(devices => {
+        const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
+        const newQrayDeviceId = newQrayDevice[0]?.deviceId
 
-          if (qrayDeviceId !== undefined && newQrayDeviceId !== undefined && qrayDeviceId !== newQrayDeviceId) {
-            console.log("22")
-            setDeviceList(newQrayDevice)
-            setQrayDeviceId(newQrayDeviceId)
-            setIsQrayDevice(!!newQrayDeviceId)
-
-            console.log("DeviceList", devices)
-            console.log("newQrayDeviceId :", trimTextToLength(newQrayDeviceId, 20))
-            console.log("oldQrayDeviceId :", trimTextToLength(qrayDeviceId, 20))
-          } else {
-            console.log("33")
-            console.log("newQrayDevice", newQrayDevice)
-            if (newQrayDeviceId.length != 0) {
-              setDeviceList(newQrayDevice)
-              setQrayDeviceId(newQrayDeviceId)
-              getQrayStream(qrayDeviceId)
-            }
-          }
-        })
-      } catch (error) {}
-    } else {
-      console.log("44")
-      try {
-        console.log("55")
-        await navigator.mediaDevices.enumerateDevices().then(devices => {
-          const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
-          const newQrayDeviceId = newQrayDevice[0]?.deviceId
-
-          setDeviceList(newQrayDevice)
-          setQrayDeviceId(newQrayDeviceId)
-          setIsQrayDevice(!!newQrayDeviceId)
-
-          console.log("DeviceList", devices)
-          console.log("newQrayDeviceId :", trimTextToLength(newQrayDeviceId, 20))
-          console.log("oldQrayDeviceId :", trimTextToLength(qrayDeviceId, 20))
-        })
-      } catch (error) {
-        console.log("Error in enumerateDevices", error)
-        setIsQrayDevice(false)
-      }
+        setDeviceList(newQrayDevice)
+        setQrayDeviceId(newQrayDeviceId)
+        setIsQrayDevice(!!newQrayDeviceId)
+      })
+    } catch (error) {
+      console.log(error)
     }
   }
 
   const debouncedGetQrayDevices: () => void = debounce(getQrayDevices, 500)
 
-  /* 최초 접속하면서 deviceID를 get하고 나면 useInterval 작동
-  getQrayStream 함수를 통해 stream이 계속해서 true인지를 확인한다.
-  useInterval이 작동한다는 것은 바로 qrayDevice의 stream이
-  바로 표시된다는 의미이다.
-  */
   useInterval(
     () => {
       setCount(count => count + 1)

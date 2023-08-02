@@ -30,6 +30,7 @@ function ReactWebcam() {
       const stream: MediaStream = await navigator.mediaDevices.getUserMedia({
         video: { deviceId: { exact: qrayDeviceId } },
       })
+
       console.log("stream", stream)
       console.log("isQrayDeviceStreamOn", isQrayDeviceStreamOn)
 
