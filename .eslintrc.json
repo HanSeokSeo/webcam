@@ -23,6 +23,7 @@
     ],
     "simple-import-sort/exports": "error",
     "import/no-anonymous-default-export": "off",
-    "react-hooks/exhaustive-deps": "off"
+    "react-hooks/exhaustive-deps": "off",
+    "react/no-unescaped-entities": "off"
   }
 }

@@ -1,6 +1,6 @@
 import { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import RefreshConnectDevices from "asset/icons/RefreshIcon"
 import Image from "next/image"
+import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 import { useInterval } from "usehooks-ts"
 import { getCurrentDateTime } from "utils"
 
@@ -105,7 +105,11 @@ function ReactWebcam() {
     <>
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96">
-          {isQrayOn ? <video ref={videoRef} className="h-full" autoPlay /> : "The qray power is off. Please turn on the power."}
+          {isQrayOn ? (
+            <video ref={videoRef} className="h-full" autoPlay />
+          ) : (
+            "The qray power is off. Please turn on the power."
+          )}
         </div>
 
         <div className="flex w-full h-40 min-w-7xl ">

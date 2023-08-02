@@ -1,7 +1,7 @@
 import { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Webcam from "react-webcam"
-import RefreshConnectDevices from "asset/icons/RefreshIcon"
 import Image from "next/image"
+import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 import { useInterval } from "usehooks-ts"
 import { getCurrentDateTime } from "utils"
 

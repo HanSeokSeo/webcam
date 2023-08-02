@@ -4,7 +4,7 @@ import Image from "next/legacy/image"
 import { userInfo } from "os"
 import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 import { useInterval } from "usehooks-ts"
-import { getCurrentDateTime, trimTextToLength } from "utils"
+import debounce, { getCurrentDateTime, trimTextToLength } from "utils"
 
 interface CapturedFile {
   name: string
@@ -114,6 +114,8 @@ function ReactWebcam() {
     }
   }
 
+  const debouncedGetQrayDevices: () => void = debounce(getQrayDevices, 500)
+
   /* 최초 접속하면서 deviceID를 get하고 나면 useInterval 작동
   getQrayStream 함수를 통해 stream이 계속해서 true인지를 확인한다.
   useInterval이 작동한다는 것은 바로 qrayDevice의 stream이
@@ -173,7 +175,7 @@ function ReactWebcam() {
               </div>
               <button
                 className="px-4 py-2 mt-6 text-black transition-colors duration-300 bg-white rounded cursor-pointer btn-connect hover:bg-gray-500 hover:text-black"
-                onClick={getQrayDevices}>
+                onClick={debouncedGetQrayDevices}>
                 Connect
               </button>
             </div>

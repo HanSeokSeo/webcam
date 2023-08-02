@@ -14,91 +14,95 @@ function ReactWebcam() {
   const [playing, setPlaying] = useState<boolean>(true)
   const [capturedFiles, setCapturedFiles] = useState<CapturedFile[]>([])
   const [devices, setDevices] = useState<InputDeviceInfo[]>([])
+
   const [qrayDeviceId, setQrayDeviceId] = useState<string>("")
-  const [isQrayOn, setIsQrayOn] = useState<boolean>(true)
   const [isQrayDeviceStreamOn, setIsQrayDeviceStreamOn] = useState<boolean>(false)
+
+  const [isQrayOn, setIsQrayOn] = useState<boolean>(true)
+
   const [count, setCount] = useState<number>(0)
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
-  let videoConstraints: MediaStreamConstraints = {
-    video: { deviceId: { exact: qrayDeviceId } },
-  }
+  const getQrayStream = async (stopVar?: boolean) => {
+    const constraints = {
+      video: {
+        facingMode: "environment",
+      },
+    }
 
-  // 스트림할 디바이스 선택
-  const checkQrayDeviceStream: (qrayDeviceId: string | undefined) => void = async (
-    qrayDeviceId: string | undefined,
-  ) => {
     try {
-      const stream: MediaStream = await navigator.mediaDevices.getUserMedia(videoConstraints)
-      console.log(stream)
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: qrayDeviceId } } })
+      // const stream = await navigator.mediaDevices.getUserMedia(constraints)
 
-      if (stream.active && videoRef.current) {
-        console.log("1")
-        videoRef.current.srcObject = stream
-        setIsQrayDeviceStreamOn(true)
-      } else {
-        stream.getTracks().forEach(t => {
-          t.stop()
-          console.log("stop")
-        })
-        setIsQrayDeviceStreamOn(false)
+      if (videoRef.current) videoRef.current.srcObject = stream
+
+      if (stopVar) {
+        console.log("스탑해야 하는데")
+        const cam: MediaStream | null | undefined = videoRef.current?.srcObject as MediaStream | null | undefined
+        if (cam) {
+          cam.getVideoTracks().forEach(t => t.stop())
+        }
       }
-
-      console.log(
-        `count: ${count}, qrayDeviceId: ${trimTextToLength(qrayDeviceId, 10)}, mediaStream: ${
-          stream.active
-        }, isQrayDeviceStreamOm: ${isQrayDeviceStreamOn}`,
-      )
-
-      if (isQrayDeviceStreamOn) {
-        setIsQrayOn(true)
-      } else {
-        setIsQrayOn(false)
-      }
+      // console.log(stream)
     } catch (error) {
       console.log("error in mediaStream", error)
     }
   }
 
-  // 연결되어있는 디바이스 리스트
-  const getDevices = (e: MediaDevices) => {
-    e.enumerateDevices().then(devices => {
-      const qrayDevice = devices.filter(device => device.label === "QRAYPEN C (636c:9050)")
+  const getQrayDevices = () => {
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      const qrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
       const qrayDeviceId = qrayDevice[0]?.deviceId
 
       setDevices(devices)
       setQrayDeviceId(qrayDeviceId)
-      console.log(devices)
-      console.log("qrayDeviceId", qrayDeviceId)
-    })
-  }
 
-  const handleRefreshClick: MouseEventHandler<SVGElement> = () => {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      console.log("여기", devices)
-      setDevices([...devices])
+      const checkStream = async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: "environment",
+            },
+          })
+          console.log(stream)
+          if (stream.active) {
+            console.log("1")
+            setIsQrayDeviceStreamOn(true)
+          } else {
+            console.log("2")
+            getQrayStream(true)
+            setIsQrayDeviceStreamOn(false)
+          }
+        } catch {}
+      }
+
+      checkStream()
+
+      console.log(devices)
+      console.log(`qrayDeviceId: ${trimTextToLength(qrayDeviceId, 10)}, count: ${count}`)
     })
   }
 
   useInterval(() => {
-    let detectedMediaDevices = navigator.mediaDevices
-    getDevices(detectedMediaDevices)
-
+    getQrayDevices()
     setCount(count => count + 1)
-  }, 3000)
+  }, 500)
 
   useEffect(() => {
-    if (qrayDeviceId != undefined) {
-      checkQrayDeviceStream(qrayDeviceId)
-    }
-  }, [qrayDeviceId])
+    console.log("3")
+    getQrayStream()
+  }, [qrayDeviceId, isQrayDeviceStreamOn])
 
   return (
     <>
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96">
-          {isQrayOn ? <video ref={videoRef} className="h-full" /> : "The qray power is off. Please turn on the power."}
+          {isQrayDeviceStreamOn ? (
+            <video autoPlay ref={videoRef} className="h-full" />
+          ) : (
+            "The qray power is off. Please turn on the power."
+          )}
         </div>
 
         <div className="flex w-full h-40 min-w-7xl ">
@@ -120,10 +124,7 @@ function ReactWebcam() {
           <div className="w-3/5 py-2">
             <div className="flex items-center space-x-2 h-[20%]">
               <div className="text-[1.25rem]">Connected Devices</div>
-              <RefreshConnectDevices
-                className="w-5 h-5 p-[0.15rem] bg-white rounded-full cursor-pointer hover:bg-slate-600"
-                onClick={handleRefreshClick}
-              />
+              <RefreshConnectDevices className="w-5 h-5 p-[0.15rem] bg-white rounded-full cursor-pointer hover:bg-slate-600" />
             </div>
 
             <div className="overflow-y-scroll h-[80%]">

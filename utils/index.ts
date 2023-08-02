@@ -27,3 +27,15 @@ export function getCurrentDateTime(): string {
 
   return now.toLocaleString(undefined, options)
 }
+
+//* debounce 구현
+export default function debounce<T extends (...args: any[]) => any>(callback: T, delay: number) {
+  let timeoutId: NodeJS.Timeout
+
+  return function (this: ThisParameterType<T>, ...args: Parameters<T>): void {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => {
+      callback.apply(this, args)
+    }, delay)
+  }
+}
