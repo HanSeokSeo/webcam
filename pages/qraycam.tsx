@@ -30,7 +30,7 @@ function ReactWebcam() {
 
   const toggleCam = (): void => {
     if (playing) {
-      const cam = videoRef.current?.video
+      const cam = videoRef.current
 
       if (cam && cam.srcObject) {
         const stream = cam.srcObject as MediaStream
@@ -45,20 +45,41 @@ function ReactWebcam() {
   }
 
   const capturePhoto = useCallback(() => {
-    const cam = videoRef.current?.video
-    const stream = cam?.srcObject as MediaStream
+    // Get the video element from the ref
+    const cam = videoRef.current
 
-    console.log(stream)
+    // Check if the video element and its srcObject exist
+    if (cam && cam.srcObject) {
+      // Cast the srcObject to MediaStream
+      const stream = cam.srcObject as MediaStream
 
-    const imageSrc = videoRef.current?.getScreenshot()
-    const currentTime = getCurrentDateTime()
+      // Create a canvas element to capture the photo
+      const canvas = document.createElement("canvas")
+      canvas.width = cam.videoWidth
+      canvas.height = cam.videoHeight
 
-    const newPicInfo = {
-      name: currentTime,
-      imgSrc: imageSrc,
+      // Draw the current frame of the video onto the canvas
+      const ctx = canvas.getContext("2d")
+      if (ctx) {
+        ctx.drawImage(cam, 0, 0, cam.videoWidth, cam.videoHeight)
+
+        // Get the image data as a data URL
+        const imageSrc = canvas.toDataURL()
+
+        // Get the current date and time as a string
+        const currentTime = getCurrentDateTime()
+
+        // Create a new object with the photo information
+        const newPicInfo = {
+          name: currentTime,
+          imgSrc: imageSrc,
+        }
+
+        // Update the 'capturedFiles' state with the new photo info
+        setCapturedFiles(prev => [...prev, newPicInfo])
+      }
     }
-    setCapturedFiles(prev => [...prev, newPicInfo])
-  }, [])
+  }, [setCapturedFiles])
 
   const handleDevices = useCallback((mediaDevices: MediaDeviceInfo[]) => {
     setDevices([...mediaDevices])
