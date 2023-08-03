@@ -14,12 +14,11 @@ interface CapturedFile {
 function ReactWebcam() {
   const [isPlaying, setIsPlaying] = useState<boolean>(true)
   const [capturedFiles, setCapturedFiles] = useState<CapturedFile[]>([])
-  const [deviceMode, setDeviceMode] = useState<string>("off")
 
   const [deviceList, setDeviceList] = useState<InputDeviceInfo[]>([])
   const [qrayDeviceId, setQrayDeviceId] = useState<string | undefined>(undefined)
   const [isQrayDevice, setIsQrayDevice] = useState<boolean>(false)
-  const [isIntervalRunning, setIsIntervalRunning] = useState<boolean>(false)
+  const [isRunning, setIsRunning] = useState<boolean>(false)
 
   const [isQrayDeviceStreamOn, setIsQrayDeviceStreamOn] = useState<boolean>(false)
   const [count, setCount] = useState<number>(0)
@@ -33,7 +32,7 @@ function ReactWebcam() {
       })
 
       console.log("stream", stream)
-      console.log("isQrayDeviceStreamOn", isQrayDeviceStreamOn)
+      console.log("isQrayDeviceStreamOn1", isQrayDeviceStreamOn)
 
       if (stream.active) setIsQrayDevice(true)
 
@@ -112,7 +111,7 @@ function ReactWebcam() {
         getQrayStream(qrayDeviceId)
       }
     },
-    isIntervalRunning ? 500 : null,
+    isRunning ? 500 : null,
   )
 
   useEffect(() => {
@@ -122,10 +121,10 @@ function ReactWebcam() {
   useEffect(() => {
     if (isQrayDevice) {
       console.log("Qray Device Found!")
-      setIsIntervalRunning(true)
+      setIsRunning(true)
     } else if (!isQrayDeviceStreamOn || !isQrayDevice) {
       console.log("Qray Device not Found!")
-      setIsIntervalRunning(false)
+      setIsRunning(false)
     }
   }, [isQrayDevice])
 
