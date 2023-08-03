@@ -111,7 +111,7 @@ function ReactWebcam() {
     mediaDevices().then(devices => {
       console.log(devices)
       setDevices(devices)
-      const qrayDevice = devices.filter(device => device.label === "QRAYPEN C (636c:9050)")
+      const qrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
       const deviceId = qrayDevice[0]?.deviceId
       setQrayDeviceId(deviceId)
       console.log(deviceId)
