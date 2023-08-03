@@ -32,7 +32,7 @@ function ReactWebcam() {
       })
 
       console.log("stream", stream)
-      console.log("isQrayDeviceStreamOn", isQrayDeviceStreamOn)
+      console.log("isQrayDeviceStreamOn1", isQrayDeviceStreamOn)
 
       if (stream.active) setIsQrayDevice(true)
 
