@@ -14,6 +14,7 @@ interface CapturedFile {
 function ReactWebcam() {
   const [isPlaying, setIsPlaying] = useState<boolean>(true)
   const [capturedFiles, setCapturedFiles] = useState<CapturedFile[]>([])
+  const [deviceMode, setDeviceMode] = useState<string>("off")
 
   const [deviceList, setDeviceList] = useState<InputDeviceInfo[]>([])
   const [qrayDeviceId, setQrayDeviceId] = useState<string | undefined>(undefined)
@@ -32,19 +33,19 @@ function ReactWebcam() {
       })
 
       console.log("stream", stream)
-      console.log("isQrayDeviceStreamOn1", isQrayDeviceStreamOn)
+      console.log("isQrayDeviceStreamOn", stream.getVideoTracks()[0].muted)
+      const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
 
-      if (stream.active) setIsQrayDevice(true)
+      if (!isMuted) setIsQrayDevice(true)
 
-      if (stream.active && videoRef.current && !isQrayDeviceStreamOn) {
-        console.log("44")
+      if (!isMuted && videoRef.current && !isQrayDeviceStreamOn) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current.play()
         console.log("stream is true")
         setIsQrayDeviceStreamOn(true)
-        setIsPlaying(true)
-      } else if (!stream.active && isQrayDeviceStreamOn) {
+        setDeviceMode("on")
+      } else if (isMuted && isQrayDeviceStreamOn) {
         stream.getTracks().forEach(t => {
           t.stop()
         })
