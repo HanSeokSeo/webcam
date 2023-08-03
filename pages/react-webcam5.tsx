@@ -33,18 +33,19 @@ function ReactWebcam() {
         video: { deviceId: { exact: qrayDeviceId } },
       })
       console.log("stream", stream)
-      console.log("isQrayDeviceStreamOn", isQrayDeviceStreamOn)
+      console.log("isQrayDeviceStreamOn", stream.getVideoTracks()[0].muted)
+      const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
 
-      if (stream.active) setIsQrayDevice(true)
+      if (!isMuted) setIsQrayDevice(true)
 
-      if (stream.active && videoRef.current && !isQrayDeviceStreamOn) {
+      if (!isMuted && videoRef.current && !isQrayDeviceStreamOn) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current.play()
         console.log("stream is true")
         setIsQrayDeviceStreamOn(true)
         setDeviceMode("on")
-      } else if (!stream.active && isQrayDeviceStreamOn) {
+      } else if (isMuted && isQrayDeviceStreamOn) {
         stream.getTracks().forEach(t => {
           t.stop()
         })
@@ -84,6 +85,17 @@ function ReactWebcam() {
     } catch (error) {
       console.log(error)
     }
+
+    // navigator.mediaDevices.enumerateDevices().then(devices => {
+    //   const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
+    //   const newQrayDeviceId = newQrayDevice[0]?.deviceId
+
+    //   console.log(newQrayDevice)
+
+    //   setDeviceList(newQrayDevice)
+    //   setQrayDeviceId(newQrayDeviceId)
+    //   setIsQrayDevice(!!newQrayDeviceId)
+    // })
   }
 
   const debouncedGetQrayDevices: () => void = debounce(getQrayDevices, 500)
