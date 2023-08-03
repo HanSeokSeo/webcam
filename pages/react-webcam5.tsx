@@ -27,23 +27,24 @@ function ReactWebcam() {
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   const getQrayStream: (qrayDeviceId: string | undefined) => void = async (qrayDeviceId: string | undefined) => {
-    console.log("qrayDeviceId:", qrayDeviceId)
     try {
       const stream: MediaStream = await navigator.mediaDevices.getUserMedia({
         video: { deviceId: { exact: qrayDeviceId } },
       })
+
       console.log("stream", stream)
       console.log("isQrayDeviceStreamOn", isQrayDeviceStreamOn)
 
       if (stream.active) setIsQrayDevice(true)
 
       if (stream.active && videoRef.current && !isQrayDeviceStreamOn) {
+        console.log("44")
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current.play()
         console.log("stream is true")
         setIsQrayDeviceStreamOn(true)
-        setDeviceMode("on")
+        setIsPlaying(true)
       } else if (!stream.active && isQrayDeviceStreamOn) {
         stream.getTracks().forEach(t => {
           t.stop()
@@ -51,13 +52,14 @@ function ReactWebcam() {
         console.log("stream is false")
         setIsQrayDevice(false)
         setIsQrayDeviceStreamOn(false)
-        setDeviceMode("off")
+        setIsPlaying(false)
       } else {
         console.log("something or nothing")
       }
     } catch (error) {
       console.log("error in mediaStream", error)
       setIsQrayDevice(false)
+      setIsQrayDeviceStreamOn(false)
     }
   }
 
@@ -68,22 +70,31 @@ function ReactWebcam() {
   const getQrayDevices = async () => {
     console.log("22")
     try {
+      console.log("33")
       await navigator.mediaDevices.enumerateDevices().then(devices => {
-        console.log(devices)
         const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAY"))
         const newQrayDeviceId = newQrayDevice[0]?.deviceId
 
         console.log(newQrayDevice)
 
-        if (deviceMode === "off") {
-          setDeviceList(newQrayDevice)
-          setQrayDeviceId(newQrayDeviceId)
-          setIsQrayDevice(!!newQrayDeviceId)
-        }
+        setDeviceList(newQrayDevice)
+        setQrayDeviceId(newQrayDeviceId)
+        setIsQrayDevice(!!newQrayDeviceId)
       })
     } catch (error) {
       console.log(error)
     }
+
+    // navigator.mediaDevices.enumerateDevices().then(devices => {
+    //   const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
+    //   const newQrayDeviceId = newQrayDevice[0]?.deviceId
+
+    //   console.log(newQrayDevice)
+
+    //   setDeviceList(newQrayDevice)
+    //   setQrayDeviceId(newQrayDeviceId)
+    //   setIsQrayDevice(!!newQrayDeviceId)
+    // })
   }
 
   const debouncedGetQrayDevices: () => void = debounce(getQrayDevices, 500)
@@ -93,15 +104,13 @@ function ReactWebcam() {
       setCount(count => count + 1)
       console.log(count)
 
-      // if (qrayDeviceId === "" || undefined) {
-      //   console.log("1")
-      //   getQrayDevices()
-      // } else {
-      //   console.log("2")
-      //   getQrayStream(qrayDeviceId)
-      // }
-      console.log("2")
-      getQrayStream(qrayDeviceId)
+      if (qrayDeviceId === "" || undefined) {
+        console.log("1")
+        getQrayDevices()
+      } else {
+        console.log("2")
+        getQrayStream(qrayDeviceId)
+      }
     },
     isIntervalRunning ? 500 : null,
   )
@@ -120,6 +129,7 @@ function ReactWebcam() {
     }
   }, [isQrayDevice])
 
+  // console.log(navigator.mediaDevices.enumerateDevices().then(device => console.log(device)))
   return (
     <>
       <div className="flex flex-col items-center w-screen h-screen">
