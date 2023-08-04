@@ -58,6 +58,8 @@ function ReactWebcam() {
       }
     } catch (error) {
       console.log("error in mediaStream", error)
+      setIsQrayDevice(false)
+      setIsQrayDeviceStreamOn(false)
     }
   }
 
