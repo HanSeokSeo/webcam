@@ -26,38 +26,38 @@ function ReactWebcam() {
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   const getQrayStream: (qrayDeviceId: string | undefined) => void = async (qrayDeviceId: string | undefined) => {
-    console.log("qrayDeviceId:", qrayDeviceId)
     try {
       const stream: MediaStream = await navigator.mediaDevices.getUserMedia({
         video: { deviceId: { exact: qrayDeviceId } },
       })
       console.log("stream", stream)
-      console.log("isQrayDeviceStreamOn", stream.getVideoTracks()[0].muted)
-
-      const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
       console.log("isMuted", stream.getVideoTracks()[0].muted)
 
-      if (!isMuted) setIsQrayDevice(true)
+      const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
 
-      if (!isMuted && videoRef.current && !isQrayDeviceStreamOn) {
+      if (!isMuted) {
+        setIsQrayDevice(true)
+        setIsQrayDeviceStreamOn(true)
+      } else {
+        setIsQrayDevice(false)
+        setIsQrayDeviceStreamOn(false)
+      }
+
+      if (!isMuted && videoRef.current) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current.play()
         console.log("stream is true")
-        setIsQrayDeviceStreamOn(true)
-      } else if (isMuted && isQrayDeviceStreamOn) {
+      } else if (isMuted) {
         stream.getTracks().forEach(t => {
           t.stop()
         })
         console.log("stream is false")
-        setIsQrayDevice(false)
-        setIsQrayDeviceStreamOn(false)
       } else {
         console.log("something or nothing")
       }
     } catch (error) {
       console.log("error in mediaStream", error)
-      setIsQrayDevice(false)
     }
   }
 
@@ -112,7 +112,7 @@ function ReactWebcam() {
     if (isQrayDevice) {
       console.log("Qray Device Found!")
       setIsIntervalRunning(true)
-    } else if (!isQrayDeviceStreamOn || !isQrayDevice) {
+    } else if (!isQrayDevice) {
       console.log("Qray Device not Found!")
       setIsIntervalRunning(false)
     }
