@@ -14,12 +14,11 @@ interface CapturedFile {
 function ReactWebcam() {
   const [isPlaying, setIsPlaying] = useState<boolean>(true)
   const [capturedFiles, setCapturedFiles] = useState<CapturedFile[]>([])
-  const [deviceMode, setDeviceMode] = useState<string>("off")
 
   const [deviceList, setDeviceList] = useState<InputDeviceInfo[]>([])
   const [qrayDeviceId, setQrayDeviceId] = useState<string | undefined>(undefined)
   const [isQrayDevice, setIsQrayDevice] = useState<boolean>(false)
-  const [isRunning, setIsRunning] = useState<boolean>(false)
+  const [isIntervalRunning, setIsIntervalRunning] = useState<boolean>(false)
 
   const [isQrayDeviceStreamOn, setIsQrayDeviceStreamOn] = useState<boolean>(false)
   const [count, setCount] = useState<number>(0)
@@ -33,26 +32,28 @@ function ReactWebcam() {
       })
 
       console.log("stream", stream)
-      console.log("isQrayDeviceStreamOn", stream.getVideoTracks()[0].muted)
+      console.log("isMuted", stream.getVideoTracks()[0].muted)
+
       const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
 
-      if (!isMuted) setIsQrayDevice(true)
+      if (!isMuted) {
+        setIsQrayDevice(true)
+        setIsQrayDeviceStreamOn(true)
+      } else {
+        setIsQrayDevice(false)
+        setIsQrayDeviceStreamOn(false)
+      }
 
-      if (!isMuted && videoRef.current && !isQrayDeviceStreamOn) {
+      if (!isMuted && videoRef.current) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current.play()
         console.log("stream is true")
-        setIsQrayDeviceStreamOn(true)
-        setDeviceMode("on")
-      } else if (isMuted && isQrayDeviceStreamOn) {
+      } else if (isMuted) {
         stream.getTracks().forEach(t => {
           t.stop()
         })
         console.log("stream is false")
-        setIsQrayDevice(false)
-        setIsQrayDeviceStreamOn(false)
-        setIsPlaying(false)
       } else {
         console.log("something or nothing")
       }
@@ -84,17 +85,6 @@ function ReactWebcam() {
     } catch (error) {
       console.log(error)
     }
-
-    // navigator.mediaDevices.enumerateDevices().then(devices => {
-    //   const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
-    //   const newQrayDeviceId = newQrayDevice[0]?.deviceId
-
-    //   console.log(newQrayDevice)
-
-    //   setDeviceList(newQrayDevice)
-    //   setQrayDeviceId(newQrayDeviceId)
-    //   setIsQrayDevice(!!newQrayDeviceId)
-    // })
   }
 
   const debouncedGetQrayDevices: () => void = debounce(getQrayDevices, 500)
@@ -112,7 +102,7 @@ function ReactWebcam() {
         getQrayStream(qrayDeviceId)
       }
     },
-    isRunning ? 500 : null,
+    isIntervalRunning ? 500 : null,
   )
 
   useEffect(() => {
@@ -122,10 +112,10 @@ function ReactWebcam() {
   useEffect(() => {
     if (isQrayDevice) {
       console.log("Qray Device Found!")
-      setIsRunning(true)
-    } else if (!isQrayDeviceStreamOn || !isQrayDevice) {
+      setIsIntervalRunning(true)
+    } else if (!isQrayDevice) {
       console.log("Qray Device not Found!")
-      setIsRunning(false)
+      setIsIntervalRunning(false)
     }
   }, [isQrayDevice])
 
