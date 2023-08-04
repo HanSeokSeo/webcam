@@ -31,28 +31,36 @@ function ReactWebcam() {
         video: { deviceId: { exact: qrayDeviceId } },
       })
 
-      console.log("stream", stream)
-      console.log("isMuted", stream.getVideoTracks()[0].muted)
+      // console.log("stream", stream)
+      console.log(
+        "isMuted:",
+        stream.getVideoTracks()[0].muted,
+        "state:",
+        stream.getVideoTracks()[0].readyState,
+        "active:",
+        stream.active,
+      )
+      // console.log(stream.getVideoTracks()[0])
 
       const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
 
       if (!isMuted) {
         setIsQrayDevice(true)
-        setIsQrayDeviceStreamOn(true)
       } else {
         setIsQrayDevice(false)
-        setIsQrayDeviceStreamOn(false)
       }
 
-      if (!isMuted && videoRef.current) {
+      if (!isMuted && videoRef.current && !isQrayDeviceStreamOn) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current.play()
+        setIsQrayDeviceStreamOn(true)
         console.log("stream is true")
-      } else if (isMuted) {
+      } else if (isMuted && isQrayDeviceStreamOn) {
         stream.getTracks().forEach(t => {
           t.stop()
         })
+        setIsQrayDeviceStreamOn(false)
         console.log("stream is false")
       } else {
         console.log("something or nothing")
@@ -102,7 +110,7 @@ function ReactWebcam() {
         getQrayStream(qrayDeviceId)
       }
     },
-    isIntervalRunning ? 500 : null,
+    isIntervalRunning ? 1000 : null,
   )
 
   useEffect(() => {
