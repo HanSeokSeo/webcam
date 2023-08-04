@@ -86,7 +86,7 @@ function ReactWebcam() {
 
         console.log(newQrayDevice)
 
-        if (newQrayDeviceId.length < 2) {
+        if (newQrayDevice.length < 2) {
           setDeviceList(newQrayDevice)
           setQrayDeviceId(newQrayDeviceId)
           setIsQrayDevice(!!newQrayDeviceId)
