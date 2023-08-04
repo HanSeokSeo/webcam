@@ -14,7 +14,6 @@ interface CapturedFile {
 function ReactWebcam() {
   const [isPlaying, setIsPlaying] = useState<boolean>(true)
   const [capturedFiles, setCapturedFiles] = useState<CapturedFile[]>([])
-  const [deviceMode, setDeviceMode] = useState<string>("off")
 
   const [deviceList, setDeviceList] = useState<InputDeviceInfo[]>([])
   const [qrayDeviceId, setQrayDeviceId] = useState<string | undefined>(undefined)
@@ -34,7 +33,9 @@ function ReactWebcam() {
       })
       console.log("stream", stream)
       console.log("isQrayDeviceStreamOn", stream.getVideoTracks()[0].muted)
+
       const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
+      console.log("isMuted", stream.getVideoTracks()[0].muted)
 
       if (!isMuted) setIsQrayDevice(true)
 
@@ -44,7 +45,6 @@ function ReactWebcam() {
         videoRef.current.play()
         console.log("stream is true")
         setIsQrayDeviceStreamOn(true)
-        setDeviceMode("on")
       } else if (isMuted && isQrayDeviceStreamOn) {
         stream.getTracks().forEach(t => {
           t.stop()
@@ -52,7 +52,6 @@ function ReactWebcam() {
         console.log("stream is false")
         setIsQrayDevice(false)
         setIsQrayDeviceStreamOn(false)
-        setDeviceMode("off")
       } else {
         console.log("something or nothing")
       }
@@ -76,26 +75,13 @@ function ReactWebcam() {
 
         console.log(newQrayDevice)
 
-        if (deviceMode === "off") {
-          setDeviceList(newQrayDevice)
-          setQrayDeviceId(newQrayDeviceId)
-          setIsQrayDevice(!!newQrayDeviceId)
-        }
+        setDeviceList(newQrayDevice)
+        setQrayDeviceId(newQrayDeviceId)
+        setIsQrayDevice(!!newQrayDeviceId)
       })
     } catch (error) {
       console.log(error)
     }
-
-    // navigator.mediaDevices.enumerateDevices().then(devices => {
-    //   const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
-    //   const newQrayDeviceId = newQrayDevice[0]?.deviceId
-
-    //   console.log(newQrayDevice)
-
-    //   setDeviceList(newQrayDevice)
-    //   setQrayDeviceId(newQrayDeviceId)
-    //   setIsQrayDevice(!!newQrayDeviceId)
-    // })
   }
 
   const debouncedGetQrayDevices: () => void = debounce(getQrayDevices, 500)
