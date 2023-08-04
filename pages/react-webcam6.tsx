@@ -125,9 +125,6 @@ function ReactWebcam() {
                   priority
                 />
               </div>
-              <button className="px-4 py-2 mt-6 text-black transition-colors duration-300 bg-white rounded cursor-pointer btn-connect hover:bg-gray-500 hover:text-black">
-                Connect
-              </button>
             </div>
           )}
         </div>
