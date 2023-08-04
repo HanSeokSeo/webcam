@@ -30,6 +30,7 @@ function ReactWebcam() {
         video: { deviceId: { exact: qrayDeviceId } },
       })
 
+      console.log(stream.getVideoTracks()[0])
       console.log(`
         isMuted: ${stream.getVideoTracks()[0].muted}, 
         state: ${stream.getVideoTracks()[0].readyState}, 
@@ -47,7 +48,10 @@ function ReactWebcam() {
       if (!isMuted && videoRef.current && !isQrayDeviceStreamOn) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
-        videoRef.current.play()
+        videoRef.current
+          .play()
+          .then()
+          .catch(e => console.log(e))
         setIsQrayDeviceStreamOn(true)
         console.log("stream is true")
       } else if (isMuted && isQrayDeviceStreamOn) {
@@ -66,16 +70,14 @@ function ReactWebcam() {
     }
   }
 
-  /* 최초 연결시에 큐레이의 deviceID를 get하는 용도. deviceID의 변경이 있는 경우만 작동. 
-  device의 물리적인 버튼을 누르는 경우나 sleep 모드로 변경되는 경우에는 실행될 필요가 없음
-  */
   const getQrayDevices = async () => {
     try {
       await navigator.mediaDevices.enumerateDevices().then(devices => {
+        console.log(devices)
         const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAY"))
         const newQrayDeviceId = newQrayDevice[0]?.deviceId
 
-        if (newQrayDeviceId && newQrayDeviceId.length < 2) {
+        if (newQrayDeviceId && newQrayDevice.length < 2) {
           setDeviceList(newQrayDevice)
           setQrayDeviceId(newQrayDeviceId)
           setIsQrayDevice(true)
@@ -89,37 +91,16 @@ function ReactWebcam() {
     }
   }
 
-  const debouncedGetQrayDevices: () => void = debounce(getQrayDevices, 500)
+  useInterval(() => {
+    setCount(count => count + 1)
+    console.log(count)
 
-  useInterval(
-    () => {
-      setCount(count => count + 1)
-      console.log(count)
-
-      if (qrayDeviceId === "" || undefined) {
-        console.log("1")
-        getQrayDevices()
-      } else {
-        console.log("2")
-        getQrayStream(qrayDeviceId)
-      }
-    },
-    isIntervalRunning ? 1000 : null,
-  )
-
-  useEffect(() => {
     getQrayDevices()
-  }, [])
 
-  useEffect(() => {
-    if (isQrayDevice) {
-      console.log("Qray Device Found!")
-      setIsIntervalRunning(true)
-    } else if (!isQrayDevice) {
-      console.log("Qray Device not Found!")
-      setIsIntervalRunning(false)
+    if (qrayDeviceId) {
+      getQrayStream(qrayDeviceId)
     }
-  }, [isQrayDevice])
+  }, 1000)
 
   return (
     <>
@@ -144,9 +125,7 @@ function ReactWebcam() {
                   priority
                 />
               </div>
-              <button
-                className="px-4 py-2 mt-6 text-black transition-colors duration-300 bg-white rounded cursor-pointer btn-connect hover:bg-gray-500 hover:text-black"
-                onClick={debouncedGetQrayDevices}>
+              <button className="px-4 py-2 mt-6 text-black transition-colors duration-300 bg-white rounded cursor-pointer btn-connect hover:bg-gray-500 hover:text-black">
                 Connect
               </button>
             </div>
