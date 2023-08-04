@@ -86,9 +86,11 @@ function ReactWebcam() {
 
         console.log(newQrayDevice)
 
-        setDeviceList(newQrayDevice)
-        setQrayDeviceId(newQrayDeviceId)
-        setIsQrayDevice(!!newQrayDeviceId)
+        if (newQrayDeviceId.length < 2) {
+          setDeviceList(newQrayDevice)
+          setQrayDeviceId(newQrayDeviceId)
+          setIsQrayDevice(!!newQrayDeviceId)
+        }
       })
     } catch (error) {
       console.log(error)
@@ -140,6 +142,7 @@ function ReactWebcam() {
               <p>Qray device is not connected.</p>
               <p>After connecting the cables and turn on the power</p>
               <p>press the 'Connect' button below.</p>
+              <p>Or check two kind of Qray Devices are connected</p>
 
               <div className="w-[250px] h-[150px] relative flex-col mt-6">
                 <Image
