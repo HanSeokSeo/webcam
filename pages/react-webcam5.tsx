@@ -1,7 +1,6 @@
 import { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Webcam from "react-webcam"
 import Image from "next/legacy/image"
-import { userInfo } from "os"
 import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 import { useInterval } from "usehooks-ts"
 import debounce, { getCurrentDateTime, trimTextToLength } from "utils"
@@ -31,16 +30,11 @@ function ReactWebcam() {
         video: { deviceId: { exact: qrayDeviceId } },
       })
 
-      // console.log("stream", stream)
-      console.log(
-        "isMuted:",
-        stream.getVideoTracks()[0].muted,
-        "state:",
-        stream.getVideoTracks()[0].readyState,
-        "active:",
-        stream.active,
-      )
-      // console.log(stream.getVideoTracks()[0])
+      console.log(`
+        isMuted: ${stream.getVideoTracks()[0].muted}, 
+        state: ${stream.getVideoTracks()[0].readyState}, 
+        active: ${stream.active}
+        `)
 
       const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
 
@@ -72,28 +66,26 @@ function ReactWebcam() {
     }
   }
 
-  /* 최초 연결시에 큐레이의 deviceID를 get하는 용도 
-  deviceID의 변경이 있는 경우만 작동. device 의 물리적인 버튼을 누르는 경우,
-  sleep 모드로 변경되는 경우에는 실행될 필요가 없음
+  /* 최초 연결시에 큐레이의 deviceID를 get하는 용도. deviceID의 변경이 있는 경우만 작동. 
+  device의 물리적인 버튼을 누르는 경우나 sleep 모드로 변경되는 경우에는 실행될 필요가 없음
   */
   const getQrayDevices = async () => {
-    console.log("22")
     try {
-      console.log("33")
       await navigator.mediaDevices.enumerateDevices().then(devices => {
         const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAY"))
         const newQrayDeviceId = newQrayDevice[0]?.deviceId
 
-        console.log(newQrayDevice)
-
-        if (newQrayDeviceId.length < 2) {
+        if (newQrayDeviceId && newQrayDeviceId.length < 2) {
           setDeviceList(newQrayDevice)
           setQrayDeviceId(newQrayDeviceId)
-          setIsQrayDevice(!!newQrayDeviceId)
+          setIsQrayDevice(true)
+          console.log("Found a valid QRAY device:", newQrayDevice)
+        } else {
+          console.log("No valid QRAY device found.")
         }
       })
     } catch (error) {
-      console.log(error)
+      console.log("Error in enumerateDevices:", error)
     }
   }
 
@@ -129,7 +121,6 @@ function ReactWebcam() {
     }
   }, [isQrayDevice])
 
-  // console.log(navigator.mediaDevices.enumerateDevices().then(device => console.log(device)))
   return (
     <>
       <div className="flex flex-col items-center w-screen h-screen">
