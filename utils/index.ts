@@ -39,3 +39,20 @@ export default function debounce<T extends (...args: any[]) => any>(callback: T,
     }, delay)
   }
 }
+
+export function getAgentSystem() {
+  if ("userAgentData" in navigator) {
+    const uaData = (navigator as Navigator & { useAgentData?: any }).useAgentData
+
+    console.log(uaData)
+
+    if (uaData) {
+      const platform = uaData.platform
+
+      if (platform.startsWith("win")) return "windows"
+      if (platform.startsWith("mac")) return "macos"
+      if (platform.startsWith("linux")) return "linux"
+      return "unknown"
+    }
+  }
+}
