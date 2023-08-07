@@ -72,10 +72,11 @@ function ReactWebcam() {
   const getQrayDevices = async () => {
     try {
       await navigator.mediaDevices.enumerateDevices().then(devices => {
+        console.log(devices)
         const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAY"))
         const newQrayDeviceId = newQrayDevice[0]?.deviceId
 
-        if (newQrayDeviceId && newQrayDeviceId.length < 2) {
+        if (newQrayDeviceId && newQrayDevice.length < 2) {
           setDeviceList(newQrayDevice)
           setQrayDeviceId(newQrayDeviceId)
           setIsQrayDevice(true)

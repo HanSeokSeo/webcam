@@ -30,7 +30,8 @@ function ReactWebcam() {
         video: { deviceId: { exact: qrayDeviceId } },
       })
 
-      console.log(stream.getVideoTracks()[0])
+      console.log("qrayDeviceId", qrayDeviceId)
+      console.log(stream)
       console.log(`
         isMuted: ${stream.getVideoTracks()[0].muted}, 
         state: ${stream.getVideoTracks()[0].readyState}, 
@@ -100,7 +101,7 @@ function ReactWebcam() {
     if (qrayDeviceId) {
       getQrayStream(qrayDeviceId)
     }
-  }, 1000)
+  }, 500)
 
   return (
     <>
@@ -125,6 +126,9 @@ function ReactWebcam() {
                   priority
                 />
               </div>
+              <button className="px-4 py-2 mt-6 text-black transition-colors duration-300 bg-white rounded cursor-pointer btn-connect hover:bg-gray-500 hover:text-black">
+                Connect
+              </button>
             </div>
           )}
         </div>
