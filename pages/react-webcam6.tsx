@@ -100,10 +100,12 @@ function ReactWebcam() {
     setCount(count => count + 1)
     console.log(count)
 
-    getQrayDevices()
-
     if (qrayDeviceId) {
+      console.log("1")
       getQrayStream(qrayDeviceId)
+    } else {
+      console.log("2")
+      getQrayDevices()
     }
   }, 2000)
 
