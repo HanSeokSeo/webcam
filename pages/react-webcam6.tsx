@@ -3,7 +3,7 @@ import Webcam from "react-webcam"
 import Image from "next/legacy/image"
 import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 import { useInterval } from "usehooks-ts"
-import debounce, { getCurrentDateTime, trimTextToLength } from "utils"
+import debounce, { getAgentSystem, getCurrentDateTime, trimTextToLength } from "utils"
 
 interface CapturedFile {
   name: string
@@ -17,7 +17,7 @@ function ReactWebcam() {
   const [deviceList, setDeviceList] = useState<InputDeviceInfo[]>([])
   const [qrayDeviceId, setQrayDeviceId] = useState<string | undefined>(undefined)
   const [isQrayDevice, setIsQrayDevice] = useState<boolean>(false)
-  const [isIntervalRunning, setIsIntervalRunning] = useState<boolean>(false)
+  const [platform, setPlatform] = useState<string>("unknown")
 
   const [isQrayDeviceStreamOn, setIsQrayDeviceStreamOn] = useState<boolean>(false)
   const [count, setCount] = useState<number>(0)
@@ -33,16 +33,19 @@ function ReactWebcam() {
       console.log("qrayDeviceId", qrayDeviceId)
       console.log(stream)
       console.log(`
+        os: ${platform}}
         isMuted: ${stream.getVideoTracks()[0].muted}, 
         state: ${stream.getVideoTracks()[0].readyState}, 
-        active: ${stream.active}
+        active: ${stream.active},
         `)
 
       const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
 
-      if (!isMuted) {
+      if (platform === "macos" && !isMuted) {
+        console.log("스트림 체크인")
         setIsQrayDevice(true)
       } else {
+        console.log("스트림 체크아웃")
         setIsQrayDevice(false)
       }
 
@@ -101,7 +104,16 @@ function ReactWebcam() {
     if (qrayDeviceId) {
       getQrayStream(qrayDeviceId)
     }
-  }, 500)
+  }, 2000)
+
+  useEffect(() => {
+    const detectedPlatform = getAgentSystem()
+    console.log(detectedPlatform)
+
+    if (detectedPlatform) {
+      setPlatform(detectedPlatform)
+    }
+  }, [])
 
   return (
     <>
