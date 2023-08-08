@@ -30,8 +30,6 @@ function ReactWebcam() {
         video: { deviceId: { exact: qrayDeviceId } },
       })
 
-      console.log("qrayDeviceId", qrayDeviceId)
-      console.log(stream)
       console.log(`
         os: ${platform},
         isMuted: ${stream.getVideoTracks()[0].muted}, 
@@ -39,7 +37,7 @@ function ReactWebcam() {
         active: ${stream.active},
         `)
 
-      const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
+      const isMuted = stream.getVideoTracks()[0].muted
 
       if (platform === "windows" && !isMuted && !isQrayDeviceStreamOn) {
         console.log("스트림 최초 체크인")
@@ -101,13 +99,11 @@ function ReactWebcam() {
     console.log(count)
 
     if (qrayDeviceId) {
-      console.log("1")
       getQrayStream(qrayDeviceId)
     } else {
-      console.log("2")
       getQrayDevices()
     }
-  }, 2000)
+  }, 500)
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
