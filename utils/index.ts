@@ -40,19 +40,50 @@ export default function debounce<T extends (...args: any[]) => any>(callback: T,
   }
 }
 
-export function getAgentSystem() {
-  if ("userAgentData" in navigator) {
-    const uaData = (navigator as Navigator & { useAgentData?: any }).useAgentData
+// export function getAgentSystem() {
+//   const uaData = (navigator as Navigator & { useAgentData?: any }).userAgent
 
-    console.log(uaData)
+//   console.log(uaData)
 
-    if (uaData) {
-      const platform = uaData.platform
+//   if (uaData) {
+//     const platform = uaData.platform
 
-      if (platform.startsWith("win")) return "windows"
-      if (platform.startsWith("mac")) return "macos"
-      if (platform.startsWith("linux")) return "linux"
-      return "unknown"
-    }
-  }
+//     if (platform.startsWith("win")) return "windows"
+//     if (platform.startsWith("mac")) return "macos"
+//     if (platform.startsWith("linux")) return "linux"
+//     return "unknown"
+//   }
+// }
+
+// export function getAgentSystem(): string {
+//   if ("userAgentData" in navigator) {
+//     const uaData = (navigator as Navigator & { userAgentData?: NavigatorUserAgentData }).userAgentData
+
+//     if (uaData) {
+//       console.log("Browser Name:", uaData.brands[0].brand)
+//       console.log("Browser Version:", uaData.brands[0].version)
+//       console.log("Platform:", uaData.platform)
+//       console.log("Is Mobile?", uaData.mobile)
+
+//       return uaData.platform || "unknown"
+//     } else {
+//       console.log("navigator.userAgentData is not supported in this browser.")
+//     }
+//   } else {
+//     console.log("navigator.userAgentData is not supported in this browser.")
+//   }
+
+//   return "unknown"
+// }
+
+export function getAgentSystem(): string {
+  const ua = navigator.userAgent
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+
+  const platform = navigator.platform.toLowerCase()
+  if (platform.startsWith("win")) return "windows"
+  if (platform.startsWith("mac")) return "macos"
+  if (platform.startsWith("linux")) return "linux"
+
+  return isMobile ? "mobile" : "unknown"
 }

@@ -108,6 +108,7 @@ function ReactWebcam() {
 
   useEffect(() => {
     const detectedPlatform = getAgentSystem()
+    console.log(detectedPlatform)
 
     if (detectedPlatform) {
       setPlatform(detectedPlatform)
