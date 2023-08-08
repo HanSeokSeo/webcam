@@ -110,6 +110,7 @@ function ReactWebcam() {
   }, 2000)
 
   useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ video: true })
     const detectedPlatform = getAgentSystem()
 
     if (detectedPlatform) {
@@ -122,7 +123,7 @@ function ReactWebcam() {
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96 relative">
           <div className="ml-3 mt-3 absolute top-0 left-0">QrayStream {isQrayDeviceStreamOn ? "ON" : "OFF"}</div>
-          {isQrayDevice || isQrayDeviceStreamOn ? (
+          {isQrayDevice ? (
             <video autoPlay ref={videoRef} className="h-full" />
           ) : (
             <div className="flex flex-col items-center justify-center text-2xl">
@@ -147,7 +148,6 @@ function ReactWebcam() {
         <div className="flex w-full h-40 min-w-7xl ">
           <div className="flex flex-col w-2/5">
             <div className="flex h-1/2">
-              {/* <div>{count}</div> */}
               <button className="flex items-center justify-center w-1/2 px-4 py-2 m-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 active:bg-blue-700">
                 {isPlaying ? "Stop" : "Start"}{" "}
               </button>
