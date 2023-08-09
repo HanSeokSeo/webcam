@@ -32,13 +32,10 @@ function ReactWebcam() {
 
       console.log("qrayDeviceId", qrayDeviceId)
       console.log(stream)
-      console.log(`os: ${platform}, isMuted: ${stream.getVideoTracks()[0].muted}, state: ${
-        stream.getVideoTracks()[0].readyState
-      }, active: ${stream.active}
-        `)
+      console.log(`os: ${platform}, isMuted: ${stream.getVideoTracks()[0].muted}, active: ${stream.active}`)
 
-      const { muted } = stream.getVideoTracks()[0]
       const { active } = stream
+      const { muted } = stream.getVideoTracks()[0]
 
       switch (platform) {
         case "windows":
@@ -53,16 +50,14 @@ function ReactWebcam() {
           }
           break
         case "macos":
-          if (!muted && active && !isQrayDeviceStreamOn) {
+          if (active && !isQrayDeviceStreamOn) {
             console.log("스트림 최초 체크인 for mac")
             setIsQrayDevice(true)
-            setIsQrayDeviceStreamOn(true)
-          } else if (!muted && active && isQrayDeviceStreamOn) {
+          } else if (active && isQrayDeviceStreamOn) {
             console.log("스트림 체크인 for mac")
           } else {
             console.log("스트림 체크아웃 for mac")
             setIsQrayDevice(false)
-            setIsQrayDeviceStreamOn(false)
           }
           break
         default:
@@ -70,7 +65,7 @@ function ReactWebcam() {
       }
 
       console.log(`isQrayDeviceStreamOn: ${isQrayDeviceStreamOn}, isQrayDevice: ${isQrayDevice}`)
-      if (!muted && videoRef.current && !isQrayDeviceStreamOn) {
+      if (!muted && videoRef.current && !isQrayDeviceStreamOn && active) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current
@@ -79,7 +74,7 @@ function ReactWebcam() {
           .catch(e => console.log(e))
         console.log("stream is true")
         setIsQrayDeviceStreamOn(true)
-      } else if (muted && isQrayDeviceStreamOn) {
+      } else if ((muted && isQrayDeviceStreamOn) || (!active && isQrayDeviceStreamOn)) {
         stream.getTracks().forEach(t => {
           t.stop()
         })
