@@ -118,13 +118,11 @@ function ReactWebcam() {
     console.log(count)
 
     if (qrayDeviceId) {
-      console.log("1")
       getQrayStream(qrayDeviceId)
     } else {
-      console.log("2")
       getQrayDevices()
     }
-  }, 2000)
+  }, 500)
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
@@ -165,7 +163,6 @@ function ReactWebcam() {
         <div className="flex w-full h-40 min-w-7xl ">
           <div className="flex flex-col w-2/5">
             <div className="flex h-1/2">
-              {/* <div>{count}</div> */}
               <button className="flex items-center justify-center w-1/2 px-4 py-2 m-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 active:bg-blue-700">
                 {isPlaying ? "Stop" : "Start"}{" "}
               </button>

@@ -97,7 +97,7 @@ function ReactWebcam() {
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream
       }
-      console.log("mediaStream", mediaStream.active)
+      console.log("mediaStream", mediaStream)
       setIsQrayOn(mediaStream.active)
     })
   }
