@@ -32,39 +32,55 @@ function ReactWebcam() {
 
       console.log("qrayDeviceId", qrayDeviceId)
       console.log(stream)
-      console.log(`
-        os: ${platform},
-        isMuted: ${stream.getVideoTracks()[0].muted}, 
-        state: ${stream.getVideoTracks()[0].readyState}, 
-        active: ${stream.active},
+      console.log(`os: ${platform}, isMuted: ${stream.getVideoTracks()[0].muted}, state: ${
+        stream.getVideoTracks()[0].readyState
+      }, active: ${stream.active}
         `)
 
-      const isMuted = stream.getVideoTracks()[0].muted // muted가 false면 stream이 true
+      const { muted } = stream.getVideoTracks()[0]
+      const { active } = stream
 
-      if (platform === "windows" && !isMuted && !isQrayDeviceStreamOn) {
-        console.log("스트림 최초 체크인")
-        setIsQrayDevice(true)
-      } else if (platform === "windows" && !isMuted && isQrayDeviceStreamOn) {
-        console.log("스트림 체크인")
-      } else {
-        console.log("스트림 체크아웃")
-        setIsQrayDevice(false)
+      switch (platform) {
+        case "windows":
+          if (!muted && !isQrayDeviceStreamOn) {
+            console.log("스트림 최초 체크인 for windows")
+            setIsQrayDevice(true)
+          } else if (!muted && isQrayDeviceStreamOn) {
+            console.log("스트림 체크인 for windows")
+          } else {
+            console.log("스트림 체크아웃 for windows")
+            setIsQrayDevice(false)
+          }
+          break
+        case "macos":
+          if (!muted && active && !isQrayDeviceStreamOn) {
+            console.log("스트림 최초 체크인 for mac")
+            setIsQrayDevice(true)
+            setIsQrayDeviceStreamOn(true)
+          } else if (!muted && active && isQrayDeviceStreamOn) {
+            console.log("스트림 체크인 for mac")
+          } else {
+            console.log("스트림 체크아웃 for mac")
+            setIsQrayDevice(false)
+            setIsQrayDeviceStreamOn(false)
+          }
+          break
+        default:
+          console.log("unknown os")
       }
 
-      if (!isMuted && videoRef.current && !isQrayDeviceStreamOn) {
+      if (!muted && isQrayDevice && videoRef.current && isQrayDeviceStreamOn) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current
           .play()
           .then()
           .catch(e => console.log(e))
-        setIsQrayDeviceStreamOn(true)
         console.log("stream is true")
-      } else if (isMuted && isQrayDeviceStreamOn) {
+      } else if (muted && isQrayDeviceStreamOn) {
         stream.getTracks().forEach(t => {
           t.stop()
         })
-        setIsQrayDeviceStreamOn(false)
         console.log("stream is false")
       } else {
         console.log("something or nothing")
@@ -79,6 +95,7 @@ function ReactWebcam() {
   const getQrayDevices = async () => {
     try {
       await navigator.mediaDevices.enumerateDevices().then(devices => {
+        console.log(devices)
         const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAY"))
         const newQrayDeviceId = newQrayDevice[0]?.deviceId
 
@@ -110,6 +127,7 @@ function ReactWebcam() {
   }, 2000)
 
   useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ video: true })
     const detectedPlatform = getAgentSystem()
 
     if (detectedPlatform) {
@@ -122,7 +140,7 @@ function ReactWebcam() {
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96 relative">
           <div className="ml-3 mt-3 absolute top-0 left-0">QrayStream {isQrayDeviceStreamOn ? "ON" : "OFF"}</div>
-          {isQrayDevice || isQrayDeviceStreamOn ? (
+          {isQrayDevice ? (
             <video autoPlay ref={videoRef} className="h-full" />
           ) : (
             <div className="flex flex-col items-center justify-center text-2xl">
