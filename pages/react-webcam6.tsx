@@ -69,7 +69,8 @@ function ReactWebcam() {
           console.log("unknown os")
       }
 
-      if (!muted && isQrayDevice && videoRef.current && isQrayDeviceStreamOn) {
+      console.log(`isQrayDeviceStreamOn: ${isQrayDeviceStreamOn}, isQrayDevice: ${isQrayDevice}`)
+      if (!muted && videoRef.current && !isQrayDeviceStreamOn) {
         videoRef.current.srcObject = null
         videoRef.current.srcObject = stream
         videoRef.current
@@ -77,11 +78,13 @@ function ReactWebcam() {
           .then()
           .catch(e => console.log(e))
         console.log("stream is true")
+        setIsQrayDeviceStreamOn(true)
       } else if (muted && isQrayDeviceStreamOn) {
         stream.getTracks().forEach(t => {
           t.stop()
         })
         console.log("stream is false")
+        setIsQrayDeviceStreamOn(false)
       } else {
         console.log("something or nothing")
       }
@@ -122,7 +125,7 @@ function ReactWebcam() {
     } else {
       getQrayDevices()
     }
-  }, 500)
+  }, 2000)
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
@@ -138,26 +141,24 @@ function ReactWebcam() {
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96 relative">
           <div className="ml-3 mt-3 absolute top-0 left-0">QrayStream {isQrayDeviceStreamOn ? "ON" : "OFF"}</div>
-          {isQrayDevice ? (
-            <video autoPlay ref={videoRef} className="h-full" />
-          ) : (
-            <div className="flex flex-col items-center justify-center text-2xl">
-              <p>Qray device is not connected.</p>
-              <p>After connecting the cables and turn on the power</p>
-              <p>press the 'Connect' button below.</p>
-              <p>Or check two kind of Qray Devices are connected</p>
 
-              <div className="w-[250px] h-[150px] relative flex-col mt-6">
-                <Image
-                  src="/asset/images/qray_yellow.jpeg"
-                  alt="Qray normal connection"
-                  layout="fill"
-                  objectFit="cover"
-                  priority
-                />
-              </div>
+          <video autoPlay ref={videoRef} className={`h-full ${isQrayDeviceStreamOn ? "" : "hidden"}`} />
+          <div className={`flex flex-col items-center justify-center text-2xl ${isQrayDeviceStreamOn ? "hidden" : ""}`}>
+            <p>Qray device is not connected.</p>
+            <p>After connecting the cables and turn on the power</p>
+            <p>press the 'Connect' button below.</p>
+            <p>Or check two kind of Qray Devices are connected</p>
+
+            <div className="w-[250px] h-[150px] relative flex-col mt-6">
+              <Image
+                src="/asset/images/qray_yellow.jpeg"
+                alt="Qray normal connection"
+                layout="fill"
+                objectFit="cover"
+                priority
+              />
             </div>
-          )}
+          </div>
         </div>
 
         <div className="flex w-full h-40 min-w-7xl ">
