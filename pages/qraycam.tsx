@@ -44,6 +44,8 @@ function ReactWebcam() {
             setIsQrayDevice(true)
           } else if (!muted && isQrayDeviceStreamOn) {
             console.log("스트림 체크인 for windows")
+          } else if (muted && active && isQrayDeviceStreamOn) {
+            console.log("스트림 체크인 for windows")
           } else {
             console.log("스트림 체크아웃 for windows")
             setIsQrayDevice(false)
