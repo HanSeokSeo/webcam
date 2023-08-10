@@ -1,9 +1,8 @@
 import { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import Webcam from "react-webcam"
 import Image from "next/image"
 import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 import { useInterval } from "usehooks-ts"
-import { getCurrentDateTime, trimTextToLength } from "utils"
+import { getCurrentDateTime } from "utils"
 
 interface CapturedFile {
   name: string
@@ -15,104 +14,143 @@ function ReactWebcam() {
   const [capturedFiles, setCapturedFiles] = useState<CapturedFile[]>([])
   const [devices, setDevices] = useState<InputDeviceInfo[]>([])
   const [qrayDeviceId, setQrayDeviceId] = useState<string>("")
-  const [isQrayOn, setIsQrayOn] = useState<boolean>(true)
-  const [isQrayDeviceStreamOn, setIsQrayDeviceStreamOn] = useState<boolean>(false)
-  const [count, setCount] = useState<number>(0)
-
+  const [isQrayOn, setIsQrayOn] = useState<boolean>(false)
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
-  let videoConstraints: MediaStreamConstraints = {
-    video: { deviceId: { exact: qrayDeviceId } },
+  const userMediaConstraints = useMemo(() => {
+    return {
+      audio: false,
+      video: true,
+    }
+  }, [])
+
+  // const webcamConstraints = {
+  //   deviceId: qrayDeviceId,
+  // }
+
+  const toggleCam = (): void => {
+    if (playing) {
+      const cam = videoRef.current
+
+      if (cam && cam.srcObject) {
+        const stream = cam.srcObject as MediaStream
+        stream.getTracks().forEach(track => {
+          track.stop()
+        })
+        setPlaying(!playing)
+      }
+    } else {
+      setPlaying(!playing)
+    }
+  }
+
+  const capturePhoto = useCallback(() => {
+    // Get the video element from the ref
+    const cam = videoRef.current
+
+    // Check if the video element and its srcObject exist
+    if (cam && cam.srcObject) {
+      // Cast the srcObject to MediaStream
+      const stream = cam.srcObject as MediaStream
+
+      // Create a canvas element to capture the photo
+      const canvas = document.createElement("canvas")
+      canvas.width = cam.videoWidth
+      canvas.height = cam.videoHeight
+
+      // Draw the current frame of the video onto the canvas
+      const ctx = canvas.getContext("2d")
+      if (ctx) {
+        ctx.drawImage(cam, 0, 0, cam.videoWidth, cam.videoHeight)
+
+        // Get the image data as a data URL
+        const imageSrc = canvas.toDataURL()
+
+        // Get the current date and time as a string
+        const currentTime = getCurrentDateTime()
+
+        // Create a new object with the photo information
+        const newPicInfo = {
+          name: currentTime,
+          imgSrc: imageSrc,
+        }
+
+        // Update the 'capturedFiles' state with the new photo info
+        setCapturedFiles(prev => [...prev, newPicInfo])
+      }
+    }
+  }, [setCapturedFiles])
+
+  const handleDevices = useCallback((mediaDevices: MediaDeviceInfo[]) => {
+    setDevices([...mediaDevices])
+  }, [])
+
+  const recordStream = () => {}
+
+  const handleRefreshClick: MouseEventHandler<SVGElement> = () => {
+    navigator.mediaDevices.enumerateDevices().then(devices => handleDevices(devices))
   }
 
   // 스트림할 디바이스 선택
-  const checkQrayDeviceStream: (qrayDeviceId: string | undefined) => void = async (
-    qrayDeviceId: string | undefined,
-  ) => {
-    try {
-      const stream: MediaStream = await navigator.mediaDevices.getUserMedia(videoConstraints)
-      console.log(stream)
-
-      if (stream.active && videoRef.current) {
-        console.log("1")
-        videoRef.current.srcObject = stream
-        setIsQrayDeviceStreamOn(true)
-      } else {
-        stream.getTracks().forEach(t => {
-          t.stop()
-          console.log("stop")
-        })
-        setIsQrayDeviceStreamOn(false)
+  const getUserMedia = async (constraints?: MediaStreamConstraints) => {
+    await navigator.mediaDevices.getUserMedia(constraints).then(mediaStream => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream
       }
-
-      console.log(
-        `count: ${count}, qrayDeviceId: ${trimTextToLength(qrayDeviceId, 10)}, mediaStream: ${
-          stream.active
-        }, isQrayDeviceStreamOm: ${isQrayDeviceStreamOn}`,
-      )
-
-      if (isQrayDeviceStreamOn) {
-        setIsQrayOn(true)
-      } else {
-        setIsQrayOn(false)
-      }
-    } catch (error) {
-      console.log("error in mediaStream", error)
-    }
+      console.log("mediaStream", mediaStream)
+      setIsQrayOn(mediaStream.active)
+    })
   }
 
   // 연결되어있는 디바이스 리스트
-  const getDevices = (e: MediaDevices) => {
-    e.enumerateDevices().then(devices => {
-      const qrayDevice = devices.filter(device => device.label === "QRAYPEN C (636c:9050)")
-      const qrayDeviceId = qrayDevice[0]?.deviceId
-
-      setDevices(devices)
-      setQrayDeviceId(qrayDeviceId)
-      console.log(devices)
-      console.log("qrayDeviceId", qrayDeviceId)
-    })
-  }
-
-  const handleRefreshClick: MouseEventHandler<SVGElement> = () => {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      console.log("여기", devices)
-      setDevices([...devices])
-    })
+  const mediaDevices = () => {
+    return navigator.mediaDevices.enumerateDevices()
   }
 
   useInterval(() => {
-    let detectedMediaDevices = navigator.mediaDevices
-    getDevices(detectedMediaDevices)
+    mediaDevices().then(devices => {
+      console.log(devices)
+      setDevices(devices)
+      const qrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAYPEN C"))
+      const deviceId = qrayDevice[0]?.deviceId
+      setQrayDeviceId(deviceId)
+      console.log(deviceId)
+    })
 
-    setCount(count => count + 1)
-  }, 3000)
+    getUserMedia(userMediaConstraints)
+  }, 500)
 
-  useEffect(() => {
-    if (qrayDeviceId != undefined) {
-      checkQrayDeviceStream(qrayDeviceId)
-    }
-  }, [qrayDeviceId])
+  useEffect(() => {}, [isQrayOn])
 
   return (
     <>
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96">
-          {isQrayOn ? <video ref={videoRef} className="h-full" /> : "The qray power is off. Please turn on the power."}
+          {isQrayOn ? (
+            <video ref={videoRef} className="h-full" autoPlay />
+          ) : (
+            "The qray power is off. Please turn on the power."
+          )}
         </div>
 
         <div className="flex w-full h-40 min-w-7xl ">
           <div className="flex flex-col w-2/5">
             <div className="flex h-1/2">
-              <button className="flex items-center justify-center w-1/2 px-4 py-2 m-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 active:bg-blue-700">
+              <button
+                className="flex items-center justify-center w-1/2 px-4 py-2 m-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 active:bg-blue-700"
+                onClick={() => toggleCam()}>
                 {playing ? "Stop" : "Start"}{" "}
               </button>
-              <button className="w-1/2 px-4 py-2 m-2 bg-yellow-500 rounded-md hover:bg-yellow-600 active:bg-yellow-700">
+              <button
+                className="w-1/2 px-4 py-2 m-2 bg-yellow-500 rounded-md hover:bg-yellow-600 active:bg-yellow-700"
+                onClick={capturePhoto}>
                 Capture{" "}
               </button>
             </div>
             <div className="flex h-1/2">
-              <button className="w-full px-4 py-2 m-2 bg-red-500 rounded-md hover:bg-red-600 active:bg-red-700">
+              <button
+                className="w-full px-4 py-2 m-2 bg-red-500 rounded-md hover:bg-red-600 active:bg-red-700"
+                onClick={recordStream}>
                 Record
               </button>
             </div>
