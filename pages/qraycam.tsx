@@ -32,6 +32,7 @@ function ReactWebcam() {
 
       console.log("qrayDeviceId", qrayDeviceId)
       console.log(stream)
+      console.log(stream.getVideoTracks())
       console.log(`os: ${platform}, isMuted: ${stream.getVideoTracks()[0].muted}, active: ${stream.active}`)
 
       const { active } = stream
@@ -122,7 +123,7 @@ function ReactWebcam() {
     } else {
       getQrayDevices()
     }
-  }, 2000)
+  }, 500)
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
