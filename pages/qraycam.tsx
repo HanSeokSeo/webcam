@@ -28,7 +28,6 @@ function ReactWebcam() {
     try {
       const stream: MediaStream = await navigator.mediaDevices.getUserMedia({
         video: { deviceId: { exact: qrayDeviceId } },
-        audio: false,
       })
 
       console.log("qrayDeviceId", qrayDeviceId)
@@ -139,7 +138,7 @@ function ReactWebcam() {
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96 relative">
           <div className="ml-3 mt-3 absolute top-0 left-0">QrayStream {isQrayDeviceStreamOn ? "ON" : "OFF"}</div>
-          <video autoPlay ref={videoRef} className={`h-full ${isQrayDeviceStreamOn ? "" : "hidden"}`} />
+          <video autoPlay ref={videoRef} muted className={`h-full ${isQrayDeviceStreamOn ? "" : "hidden"}`} />
           <div className={`flex flex-col items-center justify-center text-2xl ${isQrayDeviceStreamOn ? "hidden" : ""}`}>
             <p>Qray device is not connected.</p>
             <p>After connecting the cables and turn on the power.</p>
