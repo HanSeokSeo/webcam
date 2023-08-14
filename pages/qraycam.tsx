@@ -28,11 +28,12 @@ function ReactWebcam() {
     try {
       const stream: MediaStream = await navigator.mediaDevices.getUserMedia({
         video: { deviceId: { exact: qrayDeviceId } },
+        audio: false,
       })
 
       console.log("qrayDeviceId", qrayDeviceId)
       console.log(stream)
-      console.log(stream.getVideoTracks())
+      console.log(stream.getVideoTracks()[0])
       console.log(`os: ${platform}, isMuted: ${stream.getVideoTracks()[0].muted}, active: ${stream.active}`)
 
       const { active } = stream
@@ -96,7 +97,6 @@ function ReactWebcam() {
   const getQrayDevices = async () => {
     try {
       await navigator.mediaDevices.enumerateDevices().then(devices => {
-        console.log(devices)
         const newQrayDevice = devices.filter(device => device.label.toUpperCase().includes("QRAY"))
         const newQrayDeviceId = newQrayDevice[0]?.deviceId
 
@@ -123,7 +123,7 @@ function ReactWebcam() {
     } else {
       getQrayDevices()
     }
-  }, 500)
+  }, 2000)
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
@@ -139,7 +139,6 @@ function ReactWebcam() {
       <div className="flex flex-col items-center w-screen h-screen">
         <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96 relative">
           <div className="ml-3 mt-3 absolute top-0 left-0">QrayStream {isQrayDeviceStreamOn ? "ON" : "OFF"}</div>
-
           <video autoPlay ref={videoRef} className={`h-full ${isQrayDeviceStreamOn ? "" : "hidden"}`} />
           <div className={`flex flex-col items-center justify-center text-2xl ${isQrayDeviceStreamOn ? "hidden" : ""}`}>
             <p>Qray device is not connected.</p>
