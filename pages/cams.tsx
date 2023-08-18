@@ -5,7 +5,8 @@ import { useInterval } from "usehooks-ts"
 import debounce, { getAgentSystem, getCurrentDateTime, startStream, stopStream, trimTextToLength } from "utils"
 import { useDidMountEffect } from "utils"
 
-import ImageListContainer from "@/components/ImageListContainer"
+import ImageListContainer from "@/components/ImageList"
+import Viewer from "@/components/Viewer"
 import ViewerController from "@/components/ViewerController"
 
 interface CapturedFile {
@@ -28,11 +29,13 @@ function Cams() {
 
   const [isDeviceChecked, setIsDeviceChecked] = useState<boolean>(false)
   const [platform, setPlatform] = useState<string>("unknown")
+  const [isMuted, setIsMuted] = useState<boolean>(true)
 
   const [localStream, setLocalStream] = useState<MediaStream | undefined>(undefined)
 
   const [isQrayDeviceStreamOn, setIsQrayDeviceStreamOn] = useState<boolean>(false)
   const [count, setCount] = useState<number>(0)
+  const [checkCase, setCheckCase] = useState<string | undefined>(undefined)
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
@@ -46,7 +49,14 @@ function Cams() {
         .then((stream) => {
           startStream(videoRef, stream) // stream을 video tag에 연결
           setLocalStream(stream)
-          setIsQrayDeviceStreamOn(true)
+          if (stream !== undefined) {
+            const { active } = stream
+            if (active) {
+              setIsQrayDeviceStreamOn(true)
+            } else {
+              setIsQrayDeviceStreamOn(false)
+            }
+          }
         })
     } catch (error) {
       setIsDeviceChecked(false)
@@ -59,21 +69,8 @@ function Cams() {
   function handleCheckboxChange(changedDeviceId: string) {
     const upDatedDeviceList: ConnectedDeviceInfo[] = []
 
-    // 중복으로 체크 버튼 누른 경우 체크 해제
-    if (changedDeviceId === selectedDeviceId) {
-      deviceList.forEach((device) => {
-        const newElement = { deviceInfo: device.deviceInfo, checked: false }
-        upDatedDeviceList.push(newElement)
-      })
-
-      stopStream(videoRef, changedDeviceId)
-      setIsQrayDeviceStreamOn(false)
-      setSeletedDeviceId(undefined)
-    } else {
-      // 다른 기기를 체크했을 경우 기존의 stream을 끊고 새로운 기기의 stream 가져오기
-      stopStream(videoRef, selectedDeviceId)
-      getDeviceStream(changedDeviceId)
-
+    // case: initial, 최초로 체크 버튼을 눌렀을 경우
+    if (selectedDeviceId === undefined) {
       deviceList.forEach((device) => {
         const checkedValue = device.deviceInfo.deviceId === changedDeviceId ? true : false
         const newElement = {
@@ -82,15 +79,34 @@ function Cams() {
         }
         upDatedDeviceList.push(newElement)
       })
+      setCheckCase("initial")
       setSeletedDeviceId(changedDeviceId)
-    }
-
-    if (selectedDeviceId === undefined) {
       setIsDeviceChecked(true)
-      console.log(`"Checked Device"`)
+      console.log("Initial Check")
+    } else if (changedDeviceId !== selectedDeviceId) {
+      // 체크가 되어 있는 상태에서 다른 기기를 체크한 경우
+      deviceList.forEach((device) => {
+        const checkedValue = device.deviceInfo.deviceId === changedDeviceId ? true : false
+        const newElement = {
+          deviceInfo: device.deviceInfo,
+          checked: checkedValue,
+        }
+        upDatedDeviceList.push(newElement)
+      })
+      setCheckCase("single")
+      setSeletedDeviceId(changedDeviceId)
+      setIsDeviceChecked(true)
+      console.log("Sigle Check")
     } else {
+      // 중복으로 체크 버튼 누른 경우 체크 해제
+      deviceList.forEach((device) => {
+        const newElement = { deviceInfo: device.deviceInfo, checked: false }
+        upDatedDeviceList.push(newElement)
+      })
+      setCheckCase("double")
+      setSeletedDeviceId(undefined)
       setIsDeviceChecked(false)
-      console.log(`"Unchecked Device"`)
+      console.log("Double Check")
     }
     setPreviousDeviceId(selectedDeviceId === undefined ? undefined : selectedDeviceId)
     setDeviceList(upDatedDeviceList)
@@ -120,6 +136,7 @@ function Cams() {
     if (localStream != undefined) {
       const { active } = localStream
       const { muted } = localStream.getVideoTracks()[0]
+      setIsMuted(!muted)
 
       console.log(localStream)
       console.log(localStream.getVideoTracks()[0])
@@ -149,7 +166,6 @@ function Cams() {
             console.log("스트림 체크아웃 for mac")
             stopStream(videoRef, selectedDeviceId)
             setIsQrayDeviceStreamOn(false)
-            setIsDeviceChecked(false)
           }
           break
         default:
@@ -162,11 +178,23 @@ function Cams() {
     setCount((count) => count + 1)
     console.log(count)
     console.log(deviceList)
+    console.log(`isDeviceChecked: ${isDeviceChecked}, checkCase: ${checkCase}`)
+    console.log(`previouseDeviceId: ${trimTextToLength(previousDeviceId, 30)}`)
+    // getConnectedDevices()
 
-    if (selectedDeviceId) {
-      isQrayDeviceStreamOn ? checkDeviceStream() : getDeviceStream(selectedDeviceId)
+    if (isDeviceChecked) {
+      switch (checkCase) {
+        case "initial":
+          console.log("1")
+          getDeviceStream(selectedDeviceId)
+          break
+        case "single":
+          console.log("2")
+          stopStream(videoRef, previousDeviceId)
+          getDeviceStream(selectedDeviceId)
+      }
     } else {
-      getConnectedDevices()
+      isQrayDeviceStreamOn ? stopStream(videoRef, selectedDeviceId) : getConnectedDevices()
     }
   }, 2000)
 
@@ -186,26 +214,7 @@ function Cams() {
       <div className="flex justify-center w-full h-full">
         <ImageListContainer capturedFiles={capturedFiles} />
         <div className="border-2 border-red-500 w-[75%]">
-          <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96 relative">
-            <div className="ml-3 mt-3 absolute top-0 left-0">QrayStream {isQrayDeviceStreamOn ? "ON" : "OFF"}</div>
-            <video autoPlay ref={videoRef} muted className={`h-full ${isQrayDeviceStreamOn ? "" : "hidden"}`} />
-            <div
-              className={`flex flex-col items-center justify-center text-2xl ${isQrayDeviceStreamOn ? "hidden" : ""}`}
-            >
-              <p>Qray device is not connected.</p>
-              <p>After connecting the cables and turn on the power.</p>
-
-              <div className="w-[250px] h-[150px] relative flex-col mt-6">
-                <Image
-                  src="/asset/images/qray_yellow.jpeg"
-                  alt="Qray normal connection"
-                  layout="fill"
-                  objectFit="cover"
-                  priority
-                />
-              </div>
-            </div>
-          </div>
+          <Viewer videoRef={videoRef} isQrayDeviceStreamOn={isQrayDeviceStreamOn} />
           <ViewerController isPlaying={isPlaying} deviceList={deviceList} handleCheckboxChange={handleCheckboxChange} />
         </div>
       </div>
