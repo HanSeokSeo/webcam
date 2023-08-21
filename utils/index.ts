@@ -89,6 +89,6 @@ export function startStream(videoRef: MutableRefObject<HTMLVideoElement | null>,
       .play()
       .then()
       .catch((e: any) => console.log(e))
-    console.log("stream is true")
+    console.log("Stream is conneted to video tag.")
   }
 }

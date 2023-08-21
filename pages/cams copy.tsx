@@ -8,7 +8,6 @@ import { useDidMountEffect } from "utils"
 import ImageListContainer from "@/components/ImageList"
 import Viewer from "@/components/Viewer"
 import ViewerController from "@/components/ViewerController"
-import StatusDisplay from "@/components/ViewerStatus"
 
 interface CapturedFile {
   name: string
@@ -30,6 +29,7 @@ function Cams() {
 
   const [isDeviceChecked, setIsDeviceChecked] = useState<boolean>(false)
   const [platform, setPlatform] = useState<string>("unknown")
+  const [isMuted, setIsMuted] = useState<boolean>(true)
 
   const [isNeededCheckingStream, setIsNeededCheckingStream] = useState<boolean>(false)
 
@@ -62,6 +62,8 @@ function Cams() {
           }
         })
     } catch (error) {
+      // setIsDeviceChecked(false)
+      // setIsQrayDeviceStreamOn(false)
       console.log("error in mediaStream", error)
     }
   }
@@ -225,10 +227,7 @@ function Cams() {
       <div className="flex justify-center w-full h-full">
         <ImageListContainer capturedFiles={capturedFiles} />
         <div className="border-2 border-red-500 w-[75%]">
-          <div className="flex h-4/5 border-blue-500 border-2">
-            <StatusDisplay />
-            <Viewer videoRef={videoRef} isQrayDeviceStreamOn={isQrayDeviceStreamOn} />
-          </div>
+          <Viewer videoRef={videoRef} isQrayDeviceStreamOn={isQrayDeviceStreamOn} />
           <ViewerController isPlaying={isPlaying} deviceList={deviceList} handleCheckboxChange={handleCheckboxChange} />
         </div>
       </div>

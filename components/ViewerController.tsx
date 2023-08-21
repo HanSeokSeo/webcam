@@ -15,7 +15,7 @@ function ViewerController({
   handleCheckboxChange: any
 }) {
   return (
-    <div className="flex w-full h-40 min-w-7xl ">
+    <div className="flex w-full items-center min-w-7xl border-red-500 border-2">
       <div className="flex flex-col w-2/5">
         <div className="flex h-1/2">
           <button className="flex items-center justify-center w-1/2 px-4 py-2 m-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 active:bg-blue-700">
@@ -45,9 +45,7 @@ function ViewerController({
                   type="checkbox"
                   checked={device.checked}
                   className="mr-2 w-5 h-5"
-                  onChange={() =>
-                    handleCheckboxChange(device.deviceInfo.deviceId)
-                  }
+                  onChange={() => handleCheckboxChange(device.deviceInfo.deviceId)}
                 />
                 {device.deviceInfo.label || `Device ${key + 1}`}
               </li>

@@ -1,8 +1,14 @@
+import React from "react"
 import Image from "next/legacy/image"
 
-function Viewer({ videoRef, isQrayDeviceStreamOn }: { videoRef: any; isQrayDeviceStreamOn: any }) {
+interface ViewerProps {
+  videoRef: React.RefObject<HTMLVideoElement>
+  isQrayDeviceStreamOn: boolean
+}
+
+function Viewer({ videoRef, isQrayDeviceStreamOn }: ViewerProps) {
   return (
-    <div className="flex items-center justify-center w-full border-2 border-blue-500 h-96 relative">
+    <div className="flex items-center justify-center w-full border-2 border-blue-500 relative">
       <div className="ml-3 mt-3 absolute top-0 left-0">QrayStream {isQrayDeviceStreamOn ? "ON" : "OFF"}</div>
       <video autoPlay ref={videoRef} muted className={`h-full ${isQrayDeviceStreamOn ? "" : "hidden"}`} />
       <div className={`flex flex-col items-center justify-center text-2xl ${isQrayDeviceStreamOn ? "hidden" : ""}`}>
