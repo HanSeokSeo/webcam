@@ -29,6 +29,7 @@ function Cams() {
   const [previousDeviceId, setPreviousDeviceId] = useState<string | undefined>(undefined) // 바로 직전에 체크되었던 기기 아이디
 
   const [isDeviceChecked, setIsDeviceChecked] = useState<boolean>(false)
+
   const [platform, setPlatform] = useState<string>("unknown")
 
   const [isNeededCheckingStream, setIsNeededCheckingStream] = useState<boolean>(false)
@@ -38,6 +39,9 @@ function Cams() {
   const [isQrayDeviceStreamOn, setIsQrayDeviceStreamOn] = useState<boolean>(false)
   const [count, setCount] = useState<number>(0)
   const [checkCase, setCheckCase] = useState<string | undefined>(undefined)
+
+  const [isMuted, setIsMuted] = useState<boolean | string>("undefined")
+  const [isActive, setIsActive] = useState<boolean | string>("undefined")
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
@@ -107,6 +111,8 @@ function Cams() {
       setCheckCase("double")
       setSeletedDeviceId(undefined)
       setIsDeviceChecked(false)
+      setIsMuted("undefined")
+      setIsActive("undefined")
       console.log("Double Check")
     }
     setPreviousDeviceId(selectedDeviceId === undefined ? undefined : selectedDeviceId)
@@ -139,13 +145,15 @@ function Cams() {
     if (localStream != undefined) {
       const { active } = localStream
       const { muted } = localStream.getVideoTracks()[0]
+      setIsMuted(typeof muted === "boolean" ? muted : "undefined")
+      setIsActive(typeof active === "boolean" ? active : "undefined")
 
       console.log(localStream)
       console.log(localStream.getVideoTracks()[0])
       console.log(`os: ${platform}, isMuted: ${localStream.getVideoTracks()[0].muted}, active: ${localStream.active}`)
 
       switch (platform) {
-        case "windows":
+        case "Windows":
           if (!muted && !isQrayDeviceStreamOn) {
             console.log("스트림 최초 체크인 for windows")
             setIsDeviceChecked(true)
@@ -158,7 +166,7 @@ function Cams() {
             setIsDeviceChecked(false)
           }
           break
-        case "macos":
+        case "macOS":
           if (active && !isQrayDeviceStreamOn) {
             setIsQrayDeviceStreamOn(true)
             console.log("스트림 최초 체크인 for mac")
@@ -172,7 +180,7 @@ function Cams() {
           }
           break
         default:
-          console.log("unknown os")
+          console.log("Linux or unknown os")
       }
     }
   }
@@ -224,9 +232,16 @@ function Cams() {
     <>
       <div className="flex justify-center w-full h-full">
         <ImageListContainer capturedFiles={capturedFiles} />
-        <div className="border-2 border-red-500 w-[75%]">
-          <div className="flex h-4/5 border-blue-500 border-2">
-            <StatusDisplay />
+        <div className="w-[75%]">
+          <div className="flex h-4/5 border-slate-500 border-2">
+            <StatusDisplay
+              count={count}
+              platform={platform}
+              isDeviceChecked={isDeviceChecked}
+              isQrayDeviceStreamOn={isQrayDeviceStreamOn}
+              isMuted={isMuted}
+              isActive={isActive}
+            />
             <Viewer videoRef={videoRef} isQrayDeviceStreamOn={isQrayDeviceStreamOn} />
           </div>
           <ViewerController isPlaying={isPlaying} deviceList={deviceList} handleCheckboxChange={handleCheckboxChange} />

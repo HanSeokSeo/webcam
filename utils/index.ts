@@ -45,9 +45,9 @@ export function getAgentSystem(): string {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
 
   const platform = navigator.platform.toLowerCase()
-  if (platform.startsWith("win")) return "windows"
-  if (platform.startsWith("mac")) return "macos"
-  if (platform.startsWith("linux")) return "linux"
+  if (platform.startsWith("win")) return "Windows"
+  if (platform.startsWith("mac")) return "macOS"
+  if (platform.startsWith("linux")) return "Linux"
 
   return isMobile ? "mobile" : "unknown"
 }
