@@ -1,13 +1,13 @@
 import Image from "next/legacy/image"
-interface CapturedFile {
+interface CapturedPhotos {
   name: string
   imgSrc: string | null | undefined
 }
 
-function CaptureListContainer({ capturedFiles }: { capturedFiles: CapturedFile[] }) {
+function CaptureListContainer({ capturedPhotos }: { capturedPhotos: CapturedPhotos[] }) {
   return (
-    <div className="flex flex-row overflow-y-auto border-2 border-red-500 h-screen w-[25%]">
-      {capturedFiles.map((photo, idx) => {
+    <div className="flex flex-col overflow-y-auto border-2 border-red-500 h-screen w-[25%]">
+      {capturedPhotos.map((photo, idx) => {
         if (photo && photo.imgSrc != null && photo.imgSrc != undefined) {
           return (
             <div className="min-w-[320px] min-h-[240px] border-2 border-blue-500" key={idx}>

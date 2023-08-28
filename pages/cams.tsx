@@ -10,7 +10,7 @@ import Viewer from "@/components/Viewer"
 import ViewerController from "@/components/ViewerController"
 import StatusDisplay from "@/components/ViewerStatus"
 
-interface CapturedFile {
+interface CapturedPhotos {
   name: string
   imgSrc: string | null | undefined
 }
@@ -22,7 +22,7 @@ interface ConnectedDeviceInfo {
 
 function Cams() {
   const [isPlaying, setIsPlaying] = useState<boolean>(true)
-  const [capturedFiles, setCapturedFiles] = useState<CapturedFile[]>([])
+  const [capturedPhotos, setCapturedPhotos] = useState<CapturedPhotos[]>([])
 
   const [deviceList, setDeviceList] = useState<ConnectedDeviceInfo[]>([]) // 현재 연결된 기기 목록
   const [selectedDeviceId, setSeletedDeviceId] = useState<string | undefined>(undefined) // 현재 체크된 기기 아아디
@@ -46,7 +46,7 @@ function Cams() {
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   // 연결된 기기를 통해 들어오는 stream 가져오기
-  async function getDeviceStream(checkedDeviceId: string | undefined) {
+  const getDeviceStream = async (checkedDeviceId: string | undefined) => {
     try {
       await navigator.mediaDevices
         .getUserMedia({
@@ -71,7 +71,7 @@ function Cams() {
   }
 
   // 기기의 체크 상태에 따른 각종 상태값 변경
-  function handleCheckboxChange(changedDeviceId: string) {
+  const handleCheckboxChange = (changedDeviceId: string) => {
     const upDatedDeviceList: ConnectedDeviceInfo[] = []
 
     // case: initial, 최초로 체크 버튼을 눌렀을 경우
@@ -122,7 +122,7 @@ function Cams() {
   }
 
   // 컴에 연결된 기기 중에서 선택한 기기 확인
-  async function getConnectedDevices() {
+  const getConnectedDevices = async () => {
     const newDeviceList: ConnectedDeviceInfo[] = []
 
     try {
@@ -141,7 +141,8 @@ function Cams() {
     }
   }
 
-  function checkDeviceStream(localStream: MediaStream | undefined) {
+  // useInterval 중 기기의 스트림 체크하기
+  const checkDeviceStream = (localStream: MediaStream | undefined) => {
     if (localStream != undefined) {
       const { active } = localStream
       const { muted } = localStream.getVideoTracks()[0]
@@ -184,6 +185,33 @@ function Cams() {
       }
     }
   }
+
+  const capturePhoto = useCallback(() => {
+    console.log("여기")
+    const cam = videoRef.current
+
+    if (cam && cam.srcObject) {
+      const stream = cam.srcObject as MediaStream
+      const canvas = document.createElement("canvas")
+      canvas.width = cam.videoWidth
+      canvas.height = cam.videoHeight
+
+      const ctx = canvas.getContext("2d")
+
+      if (ctx) {
+        ctx.drawImage(cam, 0, 0, cam.videoWidth, cam.videoHeight)
+
+        const imageSrc = canvas.toDataURL()
+        const currentTime = getCurrentDateTime()
+        const newPhotoInfo = {
+          name: currentTime,
+          imgSrc: imageSrc,
+        }
+
+        setCapturedPhotos((prev) => [...prev, newPhotoInfo])
+      }
+    }
+  }, [])
 
   useInterval(() => {
     setCount((count) => count + 1)
@@ -231,7 +259,7 @@ function Cams() {
   return (
     <>
       <div className="flex justify-center w-full h-full">
-        <ImageListContainer capturedFiles={capturedFiles} />
+        <ImageListContainer capturedPhotos={capturedPhotos} />
         <div className="w-[75%]">
           <div className="flex h-4/5 border-slate-500 border-2">
             <StatusDisplay
@@ -244,7 +272,12 @@ function Cams() {
             />
             <Viewer videoRef={videoRef} isQrayDeviceStreamOn={isQrayDeviceStreamOn} />
           </div>
-          <ViewerController isPlaying={isPlaying} deviceList={deviceList} handleCheckboxChange={handleCheckboxChange} />
+          <ViewerController
+            isPlaying={isPlaying}
+            deviceList={deviceList}
+            handleCheckboxChange={handleCheckboxChange}
+            capturePhoto={capturePhoto}
+          />
         </div>
       </div>
     </>

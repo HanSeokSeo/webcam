@@ -92,3 +92,7 @@ export function startStream(videoRef: MutableRefObject<HTMLVideoElement | null>,
     console.log("Stream is conneted to video tag.")
   }
 }
+
+function addKeyEvent(eventFunction: () => void) {
+  window.addEventListener("keydown", eventFunction)
+}

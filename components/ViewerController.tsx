@@ -9,10 +9,12 @@ function ViewerController({
   isPlaying,
   deviceList,
   handleCheckboxChange,
+  capturePhoto,
 }: {
   isPlaying: boolean
   deviceList: ConnectedDeviceInfo[]
   handleCheckboxChange: any
+  capturePhoto: () => void
 }) {
   return (
     <div className="flex w-full min-w-7xl border-red-500 border-2 h-1/5">
@@ -21,8 +23,11 @@ function ViewerController({
           <button className="flex items-center justify-center w-1/2 px-4 py-2 m-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 active:bg-blue-700">
             {isPlaying ? "Stop" : "Start"}{" "}
           </button>
-          <button className="w-1/2 px-4 py-2 m-2 bg-yellow-500 rounded-md hover:bg-yellow-600 active:bg-yellow-700">
-            Capture{" "}
+          <button
+            className="w-1/2 px-4 py-2 m-2 bg-yellow-500 rounded-md hover:bg-yellow-600 active:bg-yellow-700"
+            onClick={capturePhoto}
+          >
+            Capture
           </button>
         </div>
         <div className="flex h-1/2">
