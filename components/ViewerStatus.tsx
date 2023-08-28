@@ -30,10 +30,10 @@ function StatusDisplay({
           QRAY_STREAM : {isQrayDeviceStreamOn ? "ON" : "OFF"}
         </li>
         <li className="list-none list-inside indent-1.5 before:content-['•'] before:text-lg before:pr-1">
-          MUTED: {typeof isMuted === "boolean" ? (isMuted ? "TRUE" : "FLASE") : "undefined"}
+          MUTED: {typeof isMuted === "boolean" ? (isMuted ? "TRUE" : "FALSE") : "undefined"}
         </li>
         <li className="list-none list-inside indent-1.5 before:content-['•'] before:text-lg before:pr-1">
-          ACTIVE: {typeof isActive === "boolean" ? (isActive ? "TRUE" : "FLASE") : "undefined"}
+          ACTIVE: {typeof isActive === "boolean" ? (isActive ? "TRUE" : "FALSE") : "undefined"}
         </li>
       </ul>
     </div>
