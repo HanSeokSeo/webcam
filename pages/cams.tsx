@@ -187,7 +187,6 @@ function Cams() {
   }
 
   const capturePhoto = useCallback(() => {
-    console.log("여기")
     const cam = videoRef.current
 
     if (cam && cam.srcObject) {
@@ -254,6 +253,8 @@ function Cams() {
       setPlatform(detectedPlatform)
       getConnectedDevices()
     }
+
+    window.addEventListener("keydown", capturePhoto)
   }, [])
 
   return (
