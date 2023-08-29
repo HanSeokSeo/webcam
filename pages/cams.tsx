@@ -115,6 +115,7 @@ function Cams() {
       setIsActive("undefined")
       console.log("Double Check")
     }
+
     setPreviousDeviceId(selectedDeviceId === undefined ? undefined : selectedDeviceId)
     setDeviceList(upDatedDeviceList)
     setLocalStream(undefined)
@@ -159,8 +160,6 @@ function Cams() {
             console.log("스트림 최초 체크인 for windows")
             setIsDeviceChecked(true)
           } else if (!muted && isQrayDeviceStreamOn) {
-            console.log("스트림 체크인 for windows")
-          } else if (muted && active) {
             console.log("스트림 체크인 for windows")
           } else {
             console.log("스트림 체크아웃 for windows")
@@ -254,7 +253,7 @@ function Cams() {
       getConnectedDevices()
     }
 
-    window.addEventListener("keydown", capturePhoto)
+    window.addEventListener("keydown", capturePhoto, true)
   }, [])
 
   return (
