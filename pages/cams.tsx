@@ -84,6 +84,8 @@ function Cams() {
 
   // 기기의 체크 상태에 따른 각종 상태값 변경
   const handleCheckboxChange = (changedDeviceId: string) => {
+    videoRef.current?.focus()
+
     const upDatedDeviceList: ConnectedDeviceInfo[] = []
 
     // case: initial, 최초로 체크 버튼을 눌렀을 경우
@@ -199,9 +201,8 @@ function Cams() {
     }
   }
 
-  const capturePhoto = useCallback((refAttr: React.RefObject<HTMLButtonElement>) => {
-    refAttr.blur()
-
+  const capturePhoto = useCallback(() => {
+    videoRef.current?.focus()
     const cam = videoRef.current
 
     if (cam && cam.srcObject) {
