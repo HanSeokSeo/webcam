@@ -46,7 +46,7 @@ function Cams() {
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   // 연결된 기기를 통해 들어오는 stream 가져오기
-  const getDeviceStream = async (checkedDeviceId: string | undefined) => {
+  const getDeviceStream = async (checkedDeviceId: string | undefined, platform: string) => {
     try {
       await navigator.mediaDevices
         .getUserMedia({
@@ -54,14 +54,26 @@ function Cams() {
         })
         .then((stream) => {
           if (stream !== undefined) {
-            const { active } = stream
+            if (platform === "Windows") {
+              const { muted } = stream.getVideoTracks()[0]
 
-            if (active) {
-              startStream(videoRef, stream) // stream을 video tag에 연결
-              setLocalStream(stream)
-              setIsQrayDeviceStreamOn(true)
-            } else {
-              setIsQrayDeviceStreamOn(false)
+              if (!muted) {
+                startStream(videoRef, stream) // stream을 video tag에 연결
+                setLocalStream(stream)
+                setIsQrayDeviceStreamOn(true)
+              } else {
+                setIsQrayDeviceStreamOn(false)
+              }
+            } else if (platform === "macOS") {
+              const { active } = stream
+
+              if (active) {
+                startStream(videoRef, stream) // stream을 video tag에 연결
+                setLocalStream(stream)
+                setIsQrayDeviceStreamOn(true)
+              } else {
+                setIsQrayDeviceStreamOn(false)
+              }
             }
           }
         })
@@ -225,7 +237,7 @@ function Cams() {
     getConnectedDevices()
 
     if (isNeededCheckingStream) {
-      localStream === undefined ? getDeviceStream(selectedDeviceId) : checkDeviceStream(localStream)
+      localStream === undefined ? getDeviceStream(selectedDeviceId, platform) : checkDeviceStream(localStream)
     } else {
       if (isDeviceChecked) {
         switch (checkCase) {
