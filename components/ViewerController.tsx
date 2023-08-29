@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, useRef } from "react"
+import { useRef } from "react"
 import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 
 interface ConnectedDeviceInfo {
@@ -17,6 +17,10 @@ function ViewerController({
   handleCheckboxChange: any
   capturePhoto: () => void
 }) {
+  const captureRef = useRef<HTMLButtonElement | null>(null)
+  const handleCaptureButton = () => {
+    capturePhoto()
+  }
   return (
     <div className="flex w-full min-w-7xl h-1/5 border-slate-500 border-x-2 border-b-2">
       <div className="flex flex-col w-2/5">
@@ -25,8 +29,9 @@ function ViewerController({
             {isPlaying ? "Stop" : "Start"}{" "}
           </button>
           <button
+            ref={captureRef}
             className="w-1/2 px-4 py-2 m-2 bg-yellow-500 rounded-md hover:bg-yellow-600 active:bg-yellow-700"
-            onClick={capturePhoto}
+            onClick={handleCaptureButton}
           >
             Capture
           </button>

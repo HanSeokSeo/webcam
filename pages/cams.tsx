@@ -202,7 +202,6 @@ function Cams() {
   }
 
   const capturePhoto = useCallback(() => {
-    videoRef.current?.focus()
     const cam = videoRef.current
 
     if (cam && cam.srcObject) {
