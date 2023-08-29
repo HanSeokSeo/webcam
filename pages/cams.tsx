@@ -199,7 +199,9 @@ function Cams() {
     }
   }
 
-  const capturePhoto = useCallback(() => {
+  const capturePhoto = useCallback((refAttr: React.RefObject<HTMLButtonElement>) => {
+    refAttr.blur()
+
     const cam = videoRef.current
 
     if (cam && cam.srcObject) {
