@@ -243,12 +243,12 @@ function Cams() {
         switch (checkCase) {
           case "initial":
             console.log("1")
-            getDeviceStream(selectedDeviceId)
+            getDeviceStream(selectedDeviceId, platform)
             break
           case "single":
             console.log("2")
             stopStream(videoRef, previousDeviceId)
-            getDeviceStream(selectedDeviceId)
+            getDeviceStream(selectedDeviceId, platform)
         }
         setIsNeededCheckingStream(true)
       } else {
