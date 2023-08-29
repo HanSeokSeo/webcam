@@ -20,6 +20,7 @@ function ViewerController({
   const captureRef = useRef<HTMLButtonElement | null>(null)
   const handleCaptureButton = () => {
     capturePhoto()
+    captureRef.current?.blur()
   }
   return (
     <div className="flex w-full min-w-7xl h-1/5 border-slate-500 border-x-2 border-b-2">
