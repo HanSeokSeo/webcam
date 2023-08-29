@@ -163,7 +163,9 @@ function Cams() {
             console.log("스트림 체크인 for windows")
           } else {
             console.log("스트림 체크아웃 for windows")
-            setIsDeviceChecked(false)
+            stopStream(videoRef, selectedDeviceId)
+            setIsQrayDeviceStreamOn(false)
+            setLocalStream(undefined)
           }
           break
         case "macOS":
