@@ -19,7 +19,7 @@ function ViewerController({
   capturePhoto: () => void
 }) {
   const captureRef = useRef<HTMLButtonElement | null>(null)
-  const checkboxRefs: React.RefObject<HTMLInputElement>[] = []
+  const checkboxRefs: React.RefObject<HTMLInputElement>[] = Array(deviceList.length).fill(React.createRef())
 
   const handleCaptureButton = () => {
     capturePhoto()
@@ -32,14 +32,8 @@ function ViewerController({
   }
 
   useEffect(() => {
-    checkboxRefs.length = deviceList.length
-
-    deviceList.forEach((_, index) => {
-      checkboxRefs[index] = React.createRef()
-    })
+    console.log(checkboxRefs)
   }, deviceList)
-
-  console.log(document.activeElement)
 
   return (
     <div className="flex w-full min-w-7xl h-1/5 border-slate-500 border-x-2 border-b-2">
