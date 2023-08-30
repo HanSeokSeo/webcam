@@ -28,7 +28,6 @@ function ViewerController({
   const handleInput = (id: string) => {
     inputRef.current?.blur()
     handleCheckboxChange(id)
-    return false
   }
 
   return (
@@ -67,7 +66,10 @@ function ViewerController({
                   type="checkbox"
                   checked={device.checked}
                   className="mr-2 w-5 h-5"
-                  onChange={() => handleInput(device.deviceInfo.deviceId)}
+                  onChange={(e) => {
+                    e.stopPropagation()
+                    handleInput(device.deviceInfo.deviceId)
+                  }}
                 />
                 {device.deviceInfo.label || `Device ${key + 1}`}
               </li>
