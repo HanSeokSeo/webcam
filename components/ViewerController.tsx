@@ -27,8 +27,12 @@ function ViewerController({
 
   const handleInput = (id: string) => {
     handleCheckboxChange(id)
-    inputRef.current?.blur()
+
+    if (inputRef.current) {
+      inputRef.current.blur()
+    }
   }
+
   return (
     <div className="flex w-full min-w-7xl h-1/5 border-slate-500 border-x-2 border-b-2">
       <div className="flex flex-col w-2/5">
