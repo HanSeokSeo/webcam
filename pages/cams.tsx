@@ -226,6 +226,7 @@ function Cams() {
   }, [])
 
   useInterval(() => {
+    console.log(document.activeElement)
     setCount((count) => count + 1)
     console.log(count)
     console.log(deviceList)

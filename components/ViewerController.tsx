@@ -1,4 +1,5 @@
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
+import React from "react"
 import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 
 interface ConnectedDeviceInfo {
@@ -18,16 +19,17 @@ function ViewerController({
   capturePhoto: () => void
 }) {
   const captureRef = useRef<HTMLButtonElement | null>(null)
-  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  const checkboxRefs = Array(deviceList.length).fill(React.createRef())
 
   const handleCaptureButton = () => {
     capturePhoto()
     captureRef.current?.blur()
   }
 
-  const handleInput = (id: string) => {
-    inputRef.current?.blur()
+  const handleInput = (id: string, checkboxRef: React.RefObject<HTMLInputElement>) => {
     handleCheckboxChange(id)
+    checkboxRef.current?.blur()
   }
 
   return (
@@ -62,14 +64,11 @@ function ViewerController({
             {deviceList.map((device, key) => (
               <li key={key} className="flex items-center mt-2">
                 <input
-                  ref={inputRef}
+                  ref={checkboxRefs[key]}
                   type="checkbox"
                   checked={device.checked}
                   className="mr-2 w-5 h-5"
-                  onChange={(e) => {
-                    handleInput(device.deviceInfo.deviceId)
-                    e.stopPropagation()
-                  }}
+                  onChange={() => handleInput(device.deviceInfo.deviceId, checkboxRefs[key])}
                 />
                 {device.deviceInfo.label || `Device ${key + 1}`}
               </li>
