@@ -18,9 +18,16 @@ function ViewerController({
   capturePhoto: () => void
 }) {
   const captureRef = useRef<HTMLButtonElement | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
   const handleCaptureButton = () => {
     capturePhoto()
     captureRef.current?.blur()
+  }
+
+  const handleInput = (id: string) => {
+    handleCheckboxChange(id)
+    inputRef.current?.blur()
   }
   return (
     <div className="flex w-full min-w-7xl h-1/5 border-slate-500 border-x-2 border-b-2">
@@ -54,10 +61,11 @@ function ViewerController({
             {deviceList.map((device, key) => (
               <li key={key} className="flex items-center mt-2">
                 <input
+                  ref={inputRef}
                   type="checkbox"
                   checked={device.checked}
                   className="mr-2 w-5 h-5"
-                  onChange={() => handleCheckboxChange(device.deviceInfo.deviceId)}
+                  onChange={() => handleInput(device.deviceInfo.deviceId)}
                 />
                 {device.deviceInfo.label || `Device ${key + 1}`}
               </li>
