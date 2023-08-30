@@ -116,8 +116,6 @@ function Cams() {
       console.log("Sigle Check")
     } else {
       // 중복으로 체크 버튼 누른 경우 체크 해제
-      window.removeEventListener("keydown", capturePhoto, true)
-
       deviceList.forEach((device) => {
         const newElement = { deviceInfo: device.deviceInfo, checked: false }
         upDatedDeviceList.push(newElement)

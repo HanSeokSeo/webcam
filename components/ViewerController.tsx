@@ -67,8 +67,8 @@ function ViewerController({
                   checked={device.checked}
                   className="mr-2 w-5 h-5"
                   onChange={(e) => {
-                    e.stopPropagation()
                     handleInput(device.deviceInfo.deviceId)
+                    e.stopPropagation()
                   }}
                 />
                 {device.deviceInfo.label || `Device ${key + 1}`}
