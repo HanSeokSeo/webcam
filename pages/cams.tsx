@@ -267,7 +267,7 @@ function Cams() {
       getConnectedDevices()
     }
 
-    window.addEventListener("keydown", capturePhoto, true)
+    window.addEventListener("keydown", capturePhoto)
   }, [])
 
   return (
