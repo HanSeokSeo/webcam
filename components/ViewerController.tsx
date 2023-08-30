@@ -19,18 +19,25 @@ function ViewerController({
   capturePhoto: () => void
 }) {
   const captureRef = useRef<HTMLButtonElement | null>(null)
-
-  const checkboxRefs = Array(deviceList.length).fill(React.createRef())
+  const checkboxRefs: React.RefObject<HTMLInputElement>[] = []
 
   const handleCaptureButton = () => {
     capturePhoto()
     captureRef.current?.blur()
   }
 
-  const handleInput = (id: string, checkboxRef: React.RefObject<HTMLInputElement>) => {
+  const handleInput = (id: string, index: number) => {
     handleCheckboxChange(id)
-    checkboxRef.current?.blur()
+    checkboxRefs[index].current?.blur()
   }
+
+  useEffect(() => {
+    checkboxRefs.length = deviceList.length
+
+    deviceList.forEach((_, index) => {
+      checkboxRefs[index] = React.createRef()
+    })
+  }, deviceList)
 
   return (
     <div className="flex w-full min-w-7xl h-1/5 border-slate-500 border-x-2 border-b-2">
@@ -68,7 +75,7 @@ function ViewerController({
                   type="checkbox"
                   checked={device.checked}
                   className="mr-2 w-5 h-5"
-                  onChange={() => handleInput(device.deviceInfo.deviceId, checkboxRefs[key])}
+                  onChange={() => handleInput(device.deviceInfo.deviceId, key)}
                 />
                 {device.deviceInfo.label || `Device ${key + 1}`}
               </li>
