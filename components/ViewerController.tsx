@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { createRef, useEffect, useRef } from "react"
 import React from "react"
 import RefreshConnectDevices from "public/asset/icons/RefreshIcon"
 
@@ -19,7 +19,7 @@ function ViewerController({
   capturePhoto: () => void
 }) {
   const captureRef = useRef<HTMLButtonElement | null>(null)
-  const checkboxRefs: React.RefObject<HTMLInputElement>[] = Array(deviceList.length).fill(React.createRef())
+  const checkboxRefs = useRef<React.RefObject<HTMLInputElement>[]>([])
 
   const handleCaptureButton = () => {
     capturePhoto()
@@ -28,12 +28,16 @@ function ViewerController({
 
   const handleInput = (id: string, index: number) => {
     handleCheckboxChange(id)
-    checkboxRefs[index].current?.blur()
+    checkboxRefs.current[index].current?.blur()
   }
 
   useEffect(() => {
-    console.log(checkboxRefs)
-  }, deviceList)
+    checkboxRefs.current = Array(deviceList.length)
+      .fill(0)
+      .map((_, i) => checkboxRefs.current[i] ?? createRef())
+  }, [deviceList])
+
+  console.log(checkboxRefs)
 
   return (
     <div className="flex w-full min-w-7xl h-1/5 border-slate-500 border-x-2 border-b-2">
@@ -67,10 +71,10 @@ function ViewerController({
             {deviceList.map((device, key) => (
               <li key={key} className="flex items-center mt-2">
                 <input
-                  ref={checkboxRefs[key]}
+                  ref={checkboxRefs.current[key]}
                   type="checkbox"
                   checked={device.checked}
-                  className="mr-2 w-5 h-5"
+                  className={`mr-2 w-5 h-5 ${key}`}
                   onChange={() => handleInput(device.deviceInfo.deviceId, key)}
                 />
                 {device.deviceInfo.label || `Device ${key + 1}`}
