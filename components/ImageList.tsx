@@ -5,9 +5,11 @@ interface CapturedPhotos {
 }
 
 function ImageList({ capturedPhotos }: { capturedPhotos: CapturedPhotos[] }) {
+  const reversedPhotos = [...capturedPhotos].reverse()
+
   return (
     <div className="flex flex-col overflow-y-auto border-slate-500 border-l-2 border-y-2 h-screen w-[25%]">
-      {capturedPhotos.map((photo, idx) => {
+      {reversedPhotos.map((photo, idx) => {
         if (photo && photo.imgSrc != null && photo.imgSrc != undefined) {
           return (
             <div className="flex flex-col border-slate-500 border-b-2 " key={idx}>
