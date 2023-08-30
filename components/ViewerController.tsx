@@ -22,15 +22,12 @@ function ViewerController({
 
   const handleCaptureButton = () => {
     capturePhoto()
-    captureRef.current?.blur()
+    // captureRef.current?.blur()
   }
 
   const handleInput = (id: string) => {
+    inputRef.current?.blur()
     handleCheckboxChange(id)
-
-    if (inputRef.current) {
-      inputRef.current.blur()
-    }
   }
 
   return (
