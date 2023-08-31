@@ -8,11 +8,11 @@ import { useDidMountEffect } from "utils"
 import ImageListContainer from "@/components/ImageList"
 import Viewer from "@/components/Viewer"
 import ViewerController from "@/components/ViewerController"
-import StatusDisplay from "@/components/ViewerStatus"
+import ViewerStatus from "@/components/ViewerStatus"
 
 interface CapturedPhotos {
   name: string
-  imgSrc: string | null | undefined
+  imgSrc: string
 }
 
 interface ConnectedDeviceInfo {
@@ -42,6 +42,9 @@ function Cams() {
 
   const [isMuted, setIsMuted] = useState<boolean | string>("undefined")
   const [isActive, setIsActive] = useState<boolean | string>("undefined")
+
+  const [isCaptureMode, setIsCaptureMode] = useState<boolean>(true)
+  const [clickedImageSrc, setClickedImageSrc] = useState<string>("")
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
@@ -225,6 +228,15 @@ function Cams() {
     }
   }, [])
 
+  const showClickedImage = (src: string) => {
+    if (isCaptureMode) {
+      setIsCaptureMode(false)
+      setClickedImageSrc(src)
+    } else {
+      setClickedImageSrc(src)
+    }
+  }
+
   useInterval(() => {
     setCount((count) => count + 1)
     console.log(count)
@@ -267,24 +279,31 @@ function Cams() {
       getConnectedDevices()
     }
 
-    window.addEventListener("keydown", capturePhoto)
+    window.addEventListener("keydown", capturePhoto, true)
   }, [])
 
   return (
     <>
       <div className="flex justify-center w-full h-full">
-        <ImageListContainer capturedPhotos={capturedPhotos} />
+        <ImageListContainer capturedPhotos={capturedPhotos} showClickedImage={showClickedImage} />
         <div className="w-[75%]">
           <div className="flex h-4/5 border-slate-500 border-2">
-            <StatusDisplay
+            <ViewerStatus
               count={count}
               platform={platform}
               isDeviceChecked={isDeviceChecked}
               isQrayDeviceStreamOn={isQrayDeviceStreamOn}
               isMuted={isMuted}
               isActive={isActive}
+              isCaptureMode={isCaptureMode}
+              setIsCaptureMode={setIsCaptureMode}
             />
-            <Viewer videoRef={videoRef} isQrayDeviceStreamOn={isQrayDeviceStreamOn} />
+            <Viewer
+              videoRef={videoRef}
+              isQrayDeviceStreamOn={isQrayDeviceStreamOn}
+              isCaptureMode={isCaptureMode}
+              clickedImageSrc={clickedImageSrc}
+            />
           </div>
           <ViewerController
             isPlaying={isPlaying}

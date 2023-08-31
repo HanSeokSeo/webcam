@@ -1,10 +1,16 @@
 import Image from "next/legacy/image"
 interface CapturedPhotos {
   name: string
-  imgSrc: string | null | undefined
+  imgSrc: string
 }
 
-function ImageList({ capturedPhotos }: { capturedPhotos: CapturedPhotos[] }) {
+function ImageList({
+  capturedPhotos,
+  showClickedImage,
+}: {
+  capturedPhotos: CapturedPhotos[]
+  showClickedImage: (src: string) => void
+}) {
   const reversedPhotos = [...capturedPhotos].reverse()
 
   return (
@@ -13,7 +19,13 @@ function ImageList({ capturedPhotos }: { capturedPhotos: CapturedPhotos[] }) {
         if (photo && photo.imgSrc != null && photo.imgSrc != undefined) {
           return (
             <div className="flex flex-col border-slate-500 border-b-2 p-2" key={idx}>
-              <Image src={photo.imgSrc} alt="Captured" width={400} height={300} />
+              <Image
+                src={photo.imgSrc}
+                alt="Captured"
+                width={400}
+                height={300}
+                onClick={() => showClickedImage(photo.imgSrc)}
+              />
               <div className="m-1">{photo.name}</div>
             </div>
           )
