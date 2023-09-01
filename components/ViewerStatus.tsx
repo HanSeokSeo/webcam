@@ -7,6 +7,7 @@ function ViewerStatus({
   isActive,
   isCaptureMode,
   setIsCaptureMode,
+  setIsNeededCheckingStream,
 }: {
   count: number
   platform: string
@@ -16,9 +17,10 @@ function ViewerStatus({
   isActive: boolean | string
   isCaptureMode: boolean
   setIsCaptureMode: React.Dispatch<React.SetStateAction<boolean>>
+  setIsNeededCheckingStream: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const backToCaptureMode = () => {
-    setIsCaptureMode((prev) => !prev)
+    setIsCaptureMode(true)
   }
   return (
     <div className="flex-col w-1/5 p-2 justify-between flex">

@@ -228,6 +228,7 @@ function Cams() {
     }
   }, [])
 
+  // 이미지 리스트에서 사진을 클릭한 경우
   const showClickedImage = (src: string) => {
     if (isCaptureMode) {
       setIsCaptureMode(false)
@@ -256,13 +257,14 @@ function Cams() {
           case "initial":
             console.log("1")
             getDeviceStream(selectedDeviceId, platform)
+            setIsNeededCheckingStream(true)
             break
           case "single":
             console.log("2")
             stopStream(videoRef, previousDeviceId)
             getDeviceStream(selectedDeviceId, platform)
+            setIsNeededCheckingStream(true)
         }
-        setIsNeededCheckingStream(true)
       } else {
         setIsQrayDeviceStreamOn(false)
       }
@@ -297,6 +299,7 @@ function Cams() {
               isActive={isActive}
               isCaptureMode={isCaptureMode}
               setIsCaptureMode={setIsCaptureMode}
+              setIsNeededCheckingStream={setIsNeededCheckingStream}
             />
             <Viewer
               videoRef={videoRef}
