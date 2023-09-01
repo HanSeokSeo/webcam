@@ -41,7 +41,10 @@ function ViewerController({
     <div className="flex w-full min-w-7xl h-1/5 border-slate-500 border-x-2 border-b-2">
       <div className="flex flex-col w-2/5">
         <div className="flex h-1/2">
-          <button className="flex items-center justify-center w-1/2 px-4 py-2 m-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 active:bg-blue-700">
+          <button
+            className="flex items-center justify-center w-1/2 px-4 py-2 m-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 active:bg-blue-700 opacity-50 cursor-not-allowed"
+            disabled
+          >
             {isPlaying ? "Stop" : "Start"}{" "}
           </button>
           <button
@@ -53,7 +56,10 @@ function ViewerController({
           </button>
         </div>
         <div className="flex h-1/2">
-          <button className="w-full px-4 py-2 m-2 bg-red-500 rounded-md hover:bg-red-600 active:bg-red-700">
+          <button
+            className="w-full px-4 py-2 m-2 bg-red-500 rounded-md hover:bg-red-600 active:bg-red-700 opacity-50 cursor-not-allowed"
+            disabled
+          >
             Record
           </button>
         </div>
@@ -61,7 +67,7 @@ function ViewerController({
       <div className="w-3/5 py-2">
         <div className="flex items-center space-x-2 h-[20%]">
           <div className="text-[1.25rem]">Connected Device List</div>
-          <RefreshConnectDevices className="w-5 h-5 p-[0.15rem] bg-white rounded-full cursor-pointer hover:bg-slate-600" />
+          {/* <RefreshConnectDevices className="w-5 h-5 p-[0.15rem] bg-white rounded-full cursor-pointer hover:bg-slate-600" /> */}
         </div>
 
         <div className="overflow-y-scroll h-[80%]">
