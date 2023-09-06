@@ -46,6 +46,8 @@ function Cams() {
   const [isCaptureMode, setIsCaptureMode] = useState<boolean>(true)
   const [clickedImageSrc, setClickedImageSrc] = useState<string>("")
 
+  const [imageSrc, setImageSrc] = useState<string>("")
+
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   // 연결된 기기를 통해 들어오는 stream 가져오기
@@ -206,7 +208,6 @@ function Cams() {
     const cam = videoRef.current
 
     if (cam && cam.srcObject) {
-      const stream = cam.srcObject as MediaStream
       const canvas = document.createElement("canvas")
       canvas.width = cam.videoWidth
       canvas.height = cam.videoHeight
@@ -217,6 +218,7 @@ function Cams() {
         ctx.drawImage(cam, 0, 0, cam.videoWidth, cam.videoHeight)
 
         const imageSrc = canvas.toDataURL()
+        setImageSrc(imageSrc)
         const currentTime = getCurrentDateTime()
         const newPhotoInfo = {
           name: currentTime,
@@ -283,6 +285,20 @@ function Cams() {
 
     window.addEventListener("keydown", capturePhoto, true)
   }, [])
+
+  useEffect(() => {
+    async function saveFile() {
+      try {
+        const root = await navigator.storage.getDirectory()
+        const diaryDirectory = await root.getDirectoryHandle("youat", { create: true })
+      } catch (error) {
+        console.error("파일 저장 중 오류 발생:", error)
+      }
+    }
+
+    // saveFile 함수를 호출하여 파일을 저장합니다.
+    saveFile()
+  }, [capturedPhotos])
 
   return (
     <>
