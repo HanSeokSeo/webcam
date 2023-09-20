@@ -28,11 +28,15 @@ function Viewer({ videoRef, isQrayDeviceStreamOn, isCaptureMode, clickedImageSrc
           </div>
         </div>
       </div>
-      <div className={`h-[95%] w-full flex justify-center ${isCaptureMode ? "hidden" : ""}`}>
-        <div className="h-[90%] w-full relative flex-col mt-6">
-          <Image src={clickedImageSrc} alt="Qray normal connection" layout="fill" objectFit="cover" priority />
+      {clickedImageSrc ? (
+        <div className="h-[95%] w-full flex justify-center">
+          <div className="h-[90%] w-full relative flex-col mt-6">
+            <Image src={clickedImageSrc} alt="Qray normal connection" layout="fill" objectFit="cover" priority />
+          </div>
         </div>
-      </div>
+      ) : (
+        ""
+      )}
     </div>
   )
 }
